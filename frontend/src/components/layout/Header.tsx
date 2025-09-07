@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
+import { useTranslation } from "@/hooks/useTranslation";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import {
   ShoppingCart,
   User,
@@ -20,9 +22,10 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { user } = useAppSelector((state) => state.auth);
-  const { totalItems } = useAppSelector((state) => state.cart);
+  const { user } = useAppSelector((state: any) => state.auth);
+  const { totalItems } = useAppSelector((state: any) => state.cart);
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -172,17 +175,18 @@ const Header = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
+                <LanguageSwitcher />
                 <Link
                   href="/login"
                   className="text-gray-700 hover:text-blue-600 transition-colors"
                 >
-                  Đăng nhập
+                  {t("auth.signIn", "Đăng nhập")}
                 </Link>
                 <Link
                   href="/register"
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Đăng ký
+                  {t("auth.signUp", "Đăng ký")}
                 </Link>
               </div>
             )}

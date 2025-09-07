@@ -1,5 +1,10 @@
 # E-commerce Monorepo - Vercel Deployment
 
+🚀 **LIVE DEPLOYMENT:**
+
+- **Frontend**: https://frontend-28x1fqxqf-dev-eb0dacb6.vercel.app
+- **Backend API**: https://backend-mosmnow5p-dev-eb0dacb6.vercel.app
+
 This repository contains both backend (NestJS) and frontend (Next.js) for the e-commerce application.
 
 ## Structure
@@ -16,13 +21,13 @@ This repository contains both backend (NestJS) and frontend (Next.js) for the e-
 
 ### Backend API
 
-- **URL**: `https://web-ecommerce-api.vercel.app/api`
+- **URL**: `https://backend-mosmnow5p-dev-eb0dacb6.vercel.app/api`
 - **Type**: Serverless Functions
 - **Database**: Vercel Postgres
 
 ### Frontend App
 
-- **URL**: `https://web-ecommerce.vercel.app`
+- **URL**: `https://frontend-28x1fqxqf-dev-eb0dacb6.vercel.app`
 - **Type**: Next.js Static/SSR
 - **Features**: E-commerce storefront + Admin panel
 

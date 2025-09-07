@@ -37,6 +37,16 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
+  @ApiOperation({ summary: "Get featured products" })
+  @ApiResponse({
+    status: 200,
+    description: "Featured products retrieved successfully",
+  })
+  @Get("featured")
+  findFeatured() {
+    return this.productsService.findFeatured();
+  }
+
   @ApiOperation({ summary: "Get a product by ID" })
   @ApiResponse({ status: 200, description: "Product retrieved successfully" })
   @ApiResponse({ status: 404, description: "Product not found" })

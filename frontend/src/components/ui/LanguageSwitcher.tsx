@@ -22,14 +22,14 @@ const languages: Language[] = [
 ];
 
 export default function LanguageSwitcher() {
-  const { locale, setLocale } = useTranslation();
+  const { locale, changeLanguage } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const currentLanguage =
     languages.find((lang) => lang.code === locale) || languages[0];
 
   const handleLanguageChange = (languageCode: string) => {
-    setLocale(languageCode);
+    changeLanguage(languageCode);
     setIsOpen(false);
   };
 

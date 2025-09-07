@@ -21,6 +21,14 @@ export class ProductsService {
     });
   }
 
+  async findFeatured(): Promise<Product[]> {
+    return this.productsRepository.find({
+      where: { isFeatured: true, isActive: true },
+      relations: ["category"],
+      take: 8, // Limit to 8 featured products
+    });
+  }
+
   async findOne(id: number): Promise<Product> {
     return this.productsRepository.findOne({
       where: { id },
@@ -35,5 +43,9 @@ export class ProductsService {
 
   async remove(id: number): Promise<void> {
     await this.productsRepository.delete(id);
+  }
+
+  async deleteAll(): Promise<void> {
+    await this.productsRepository.clear();
   }
 }

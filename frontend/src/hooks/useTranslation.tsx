@@ -1,104 +1,1364 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, useContext, ReactNode } from "react";
+import { useRouter, usePathname } from "next/navigation";
+
+export const supportedLocales = [
+  "en",
+  "vi",
+  "es",
+  "fr",
+  "de",
+  "ja",
+  "ko",
+  "zh",
+];
 
 interface Translations {
-  [key: string]: string | Translations;
+  [key: string]: {
+    [locale: string]: string;
+  };
 }
+
+const translations: Translations = {
+  // Navigation
+  "nav.home": {
+    en: "Home",
+    vi: "Trang chủ",
+    es: "Inicio",
+    fr: "Accueil",
+    de: "Startseite",
+    ja: "ホーム",
+    ko: "홈",
+    zh: "首页",
+  },
+  "nav.products": {
+    en: "Products",
+    vi: "Sản phẩm",
+    es: "Productos",
+    fr: "Produits",
+    de: "Produkte",
+    ja: "商品",
+    ko: "제품",
+    zh: "产品",
+  },
+  "nav.categories": {
+    en: "Categories",
+    vi: "Danh mục",
+    es: "Categorías",
+    fr: "Catégories",
+    de: "Kategorien",
+    ja: "カテゴリー",
+    ko: "카테고리",
+    zh: "分类",
+  },
+  "nav.cart": {
+    en: "Cart",
+    vi: "Giỏ hàng",
+    es: "Carrito",
+    fr: "Panier",
+    de: "Warenkorb",
+    ja: "カート",
+    ko: "장바구니",
+    zh: "购物车",
+  },
+  "nav.login": {
+    en: "Login",
+    vi: "Đăng nhập",
+    es: "Iniciar sesión",
+    fr: "Se connecter",
+    de: "Anmelden",
+    ja: "ログイン",
+    ko: "로그인",
+    zh: "登录",
+  },
+  "nav.register": {
+    en: "Register",
+    vi: "Đăng ký",
+    es: "Registrarse",
+    fr: "S'inscrire",
+    de: "Registrieren",
+    ja: "登録",
+    ko: "회원가입",
+    zh: "注册",
+  },
+  "nav.favorites": {
+    en: "Favorites",
+    vi: "Sản phẩm yêu thích",
+    es: "Favoritos",
+    fr: "Favoris",
+    de: "Favoriten",
+    ja: "お気に入り",
+    ko: "즐겨찾기",
+    zh: "收藏夹",
+  },
+  "nav.orders": {
+    en: "My Orders",
+    vi: "Đơn hàng của tôi",
+    es: "Mis pedidos",
+    fr: "Mes commandes",
+    de: "Meine Bestellungen",
+    ja: "注文履歴",
+    ko: "주문 내역",
+    zh: "我的订单",
+  },
+  "nav.profile": {
+    en: "Profile",
+    vi: "Hồ sơ",
+    es: "Perfil",
+    fr: "Profil",
+    de: "Profil",
+    ja: "プロフィール",
+    ko: "프로필",
+    zh: "个人资料",
+  },
+  "nav.about": {
+    en: "About Us",
+    vi: "Về chúng tôi",
+    es: "Acerca de nosotros",
+    fr: "À propos de nous",
+    de: "Über uns",
+    ja: "私たちについて",
+    ko: "회사 소개",
+    zh: "关于我们",
+  },
+  "nav.admin": {
+    en: "Admin",
+    vi: "Quản trị",
+    es: "Administrador",
+    fr: "Administrateur",
+    de: "Administrator",
+    ja: "管理者",
+    ko: "관리자",
+    zh: "管理员",
+  },
+  "nav.logout": {
+    en: "Logout",
+    vi: "Đăng xuất",
+    es: "Cerrar sesión",
+    fr: "Se déconnecter",
+    de: "Abmelden",
+    ja: "ログアウト",
+    ko: "로그아웃",
+    zh: "退出",
+  },
+
+  // Authentication
+  "auth.login.title": {
+    en: "Login",
+    vi: "Đăng nhập",
+    es: "Iniciar sesión",
+    fr: "Se connecter",
+    de: "Anmelden",
+    ja: "ログイン",
+    ko: "로그인",
+    zh: "登录",
+  },
+  "auth.login.subtitle": {
+    en: "Or create a new account",
+    vi: "Hoặc tạo tài khoản mới",
+    es: "O crear una nueva cuenta",
+    fr: "Ou créer un nouveau compte",
+    de: "Oder neues Konto erstellen",
+    ja: "または新しいアカウントを作成",
+    ko: "또는 새 계정 만들기",
+    zh: "或创建新账户",
+  },
+  "auth.email": {
+    en: "Email",
+    vi: "Email",
+    es: "Correo electrónico",
+    fr: "E-mail",
+    de: "E-Mail",
+    ja: "メール",
+    ko: "이메일",
+    zh: "邮箱",
+  },
+  "auth.password": {
+    en: "Password",
+    vi: "Mật khẩu",
+    es: "Contraseña",
+    fr: "Mot de passe",
+    de: "Passwort",
+    ja: "パスワード",
+    ko: "비밀번호",
+    zh: "密码",
+  },
+  "auth.remember": {
+    en: "Remember me",
+    vi: "Ghi nhớ đăng nhập",
+    es: "Recordarme",
+    fr: "Se souvenir de moi",
+    de: "Angemeldet bleiben",
+    ja: "ログイン状態を保持",
+    ko: "로그인 상태 유지",
+    zh: "记住登录",
+  },
+  "auth.forgot": {
+    en: "Forgot password?",
+    vi: "Quên mật khẩu?",
+    es: "¿Olvidaste tu contraseña?",
+    fr: "Mot de passe oublié ?",
+    de: "Passwort vergessen?",
+    ja: "パスワードを忘れた？",
+    ko: "비밀번호를 잊으셨나요?",
+    zh: "忘记密码？",
+  },
+
+  // Forgot Password
+  "forgot.title": {
+    en: "Forgot Password?",
+    vi: "Quên mật khẩu?",
+    es: "¿Olvidaste tu contraseña?",
+    fr: "Mot de passe oublié ?",
+    de: "Passwort vergessen?",
+    ja: "パスワードを忘れましたか？",
+    ko: "비밀번호를 잊으셨나요?",
+    zh: "忘记密码？",
+  },
+  "forgot.subtitle": {
+    en: "No worries! Enter your email address and we'll send you a link to reset your password.",
+    vi: "Đừng lo lắng! Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.",
+    es: "¡No te preocupes! Ingresa tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+    fr: "Pas de souci ! Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    de: "Keine Sorge! Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
+    ja: "心配いりません！メールアドレスを入力すると、パスワードリセット用のリンクをお送りします。",
+    ko: "걱정하지 마세요! 이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드립니다.",
+    zh: "别担心！输入您的邮箱地址，我们将发送重置密码的链接给您。",
+  },
+  "forgot.email.placeholder": {
+    en: "Enter your email address",
+    vi: "Nhập địa chỉ email của bạn",
+    es: "Ingresa tu dirección de correo",
+    fr: "Entrez votre adresse e-mail",
+    de: "Geben Sie Ihre E-Mail-Adresse ein",
+    ja: "メールアドレスを入力してください",
+    ko: "이메일 주소를 입력하세요",
+    zh: "输入您的邮箱地址",
+  },
+  "forgot.send": {
+    en: "Send Reset Link",
+    vi: "Gửi liên kết đặt lại",
+    es: "Enviar enlace de restablecimiento",
+    fr: "Envoyer le lien de réinitialisation",
+    de: "Reset-Link senden",
+    ja: "リセットリンクを送信",
+    ko: "재설정 링크 보내기",
+    zh: "发送重置链接",
+  },
+  "forgot.sending": {
+    en: "Sending Reset Link...",
+    vi: "Đang gửi liên kết đặt lại...",
+    es: "Enviando enlace de restablecimiento...",
+    fr: "Envoi du lien de réinitialisation...",
+    de: "Reset-Link wird gesendet...",
+    ja: "リセットリンクを送信中...",
+    ko: "재설정 링크 전송 중...",
+    zh: "正在发送重置链接...",
+  },
+  "forgot.back": {
+    en: "Back to Login",
+    vi: "Quay lại đăng nhập",
+    es: "Volver al inicio de sesión",
+    fr: "Retour à la connexion",
+    de: "Zurück zur Anmeldung",
+    ja: "ログインに戻る",
+    ko: "로그인으로 돌아가기",
+    zh: "返回登录",
+  },
+  "forgot.success.title": {
+    en: "Check Your Email",
+    vi: "Kiểm tra email của bạn",
+    es: "Revisa tu correo electrónico",
+    fr: "Vérifiez votre e-mail",
+    de: "Überprüfen Sie Ihre E-Mail",
+    ja: "メールを確認してください",
+    ko: "이메일을 확인하세요",
+    zh: "查看您的邮箱",
+  },
+  "forgot.success.message": {
+    en: "We've sent a password reset link to your email address. Please check your inbox and follow the instructions.",
+    vi: "Chúng tôi đã gửi liên kết đặt lại mật khẩu đến địa chỉ email của bạn. Vui lòng kiểm tra hộp thư đến và làm theo hướng dẫn.",
+    es: "Hemos enviado un enlace de restablecimiento de contraseña a tu dirección de correo electrónico. Por favor, revisa tu bandeja de entrada y sigue las instrucciones.",
+    fr: "Nous avons envoyé un lien de réinitialisation de mot de passe à votre adresse e-mail. Veuillez vérifier votre boîte de réception et suivre les instructions.",
+    de: "Wir haben einen Link zum Zurücksetzen des Passworts an Ihre E-Mail-Adresse gesendet. Bitte überprüfen Sie Ihren Posteingang und befolgen Sie die Anweisungen.",
+    ja: "パスワードリセットリンクをメールアドレスに送信しました。受信トレイを確認し、指示に従ってください。",
+    ko: "비밀번호 재설정 링크를 이메일 주소로 보냈습니다. 받은편지함을 확인하고 안내를 따라주세요.",
+    zh: "我们已向您的邮箱地址发送了密码重置链接。请检查您的收件箱并按照说明操作。",
+  },
+  "forgot.back.login": {
+    en: "Back to Login",
+    vi: "Quay lại đăng nhập",
+    es: "Volver al inicio de sesión",
+    fr: "Retour à la connexion",
+    de: "Zurück zur Anmeldung",
+    ja: "ログインに戻る",
+    ko: "로그인으로 돌아가기",
+    zh: "返回登录",
+  },
+  "forgot.resend": {
+    en: "Resend Email",
+    vi: "Gửi lại email",
+    es: "Reenviar correo",
+    fr: "Renvoyer l'e-mail",
+    de: "E-Mail erneut senden",
+    ja: "メールを再送信",
+    ko: "이메일 재전송",
+    zh: "重发邮件",
+  },
+
+  // Reset Password
+  "reset.title": {
+    en: "Reset Password",
+    vi: "Đặt lại mật khẩu",
+    es: "Restablecer contraseña",
+    fr: "Réinitialiser le mot de passe",
+    de: "Passwort zurücksetzen",
+    ja: "パスワードをリセット",
+    ko: "비밀번호 재설정",
+    zh: "重置密码",
+  },
+  "reset.subtitle": {
+    en: "Enter your new password below.",
+    vi: "Nhập mật khẩu mới của bạn bên dưới.",
+    es: "Ingresa tu nueva contraseña a continuación.",
+    fr: "Entrez votre nouveau mot de passe ci-dessous.",
+    de: "Geben Sie Ihr neues Passwort unten ein.",
+    ja: "新しいパスワードを以下に入力してください。",
+    ko: "아래에 새 비밀번호를 입력하세요.",
+    zh: "在下方输入您的新密码。",
+  },
+  "reset.password": {
+    en: "New Password",
+    vi: "Mật khẩu mới",
+    es: "Nueva contraseña",
+    fr: "Nouveau mot de passe",
+    de: "Neues Passwort",
+    ja: "新しいパスワード",
+    ko: "새 비밀번호",
+    zh: "新密码",
+  },
+  "reset.password.placeholder": {
+    en: "Enter your new password",
+    vi: "Nhập mật khẩu mới",
+    es: "Ingresa tu nueva contraseña",
+    fr: "Entrez votre nouveau mot de passe",
+    de: "Geben Sie Ihr neues Passwort ein",
+    ja: "新しいパスワードを入力",
+    ko: "새 비밀번호를 입력하세요",
+    zh: "输入新密码",
+  },
+  "reset.confirmPassword": {
+    en: "Confirm Password",
+    vi: "Xác nhận mật khẩu",
+    es: "Confirmar contraseña",
+    fr: "Confirmer le mot de passe",
+    de: "Passwort bestätigen",
+    ja: "パスワードを確認",
+    ko: "비밀번호 확인",
+    zh: "确认密码",
+  },
+  "reset.confirmPassword.placeholder": {
+    en: "Confirm your new password",
+    vi: "Xác nhận mật khẩu mới",
+    es: "Confirma tu nueva contraseña",
+    fr: "Confirmez votre nouveau mot de passe",
+    de: "Bestätigen Sie Ihr neues Passwort",
+    ja: "新しいパスワードを確認",
+    ko: "새 비밀번호를 확인하세요",
+    zh: "确认新密码",
+  },
+  "reset.requirements": {
+    en: "Password must be at least 6 characters long.",
+    vi: "Mật khẩu phải có ít nhất 6 ký tự.",
+    es: "La contraseña debe tener al menos 6 caracteres.",
+    fr: "Le mot de passe doit contenir au moins 6 caractères.",
+    de: "Das Passwort muss mindestens 6 Zeichen lang sein.",
+    ja: "パスワードは6文字以上である必要があります。",
+    ko: "비밀번호는 최소 6자 이상이어야 합니다.",
+    zh: "密码必须至少6个字符。",
+  },
+  "reset.update": {
+    en: "Update Password",
+    vi: "Cập nhật mật khẩu",
+    es: "Actualizar contraseña",
+    fr: "Mettre à jour le mot de passe",
+    de: "Passwort aktualisieren",
+    ja: "パスワードを更新",
+    ko: "비밀번호 업데이트",
+    zh: "更新密码",
+  },
+  "reset.updating": {
+    en: "Updating Password...",
+    vi: "Đang cập nhật mật khẩu...",
+    es: "Actualizando contraseña...",
+    fr: "Mise à jour du mot de passe...",
+    de: "Passwort wird aktualisiert...",
+    ja: "パスワードを更新中...",
+    ko: "비밀번호 업데이트 중...",
+    zh: "正在更新密码...",
+  },
+  "reset.success.title": {
+    en: "Password Updated!",
+    vi: "Mật khẩu đã được cập nhật!",
+    es: "¡Contraseña actualizada!",
+    fr: "Mot de passe mis à jour !",
+    de: "Passwort aktualisiert!",
+    ja: "パスワードが更新されました！",
+    ko: "비밀번호가 업데이트되었습니다!",
+    zh: "密码已更新！",
+  },
+  "reset.success.message": {
+    en: "Your password has been successfully updated. You can now sign in with your new password.",
+    vi: "Mật khẩu của bạn đã được cập nhật thành công. Bây giờ bạn có thể đăng nhập bằng mật khẩu mới.",
+    es: "Tu contraseña ha sido actualizada exitosamente. Ahora puedes iniciar sesión con tu nueva contraseña.",
+    fr: "Votre mot de passe a été mis à jour avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    de: "Ihr Passwort wurde erfolgreich aktualisiert. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+    ja: "パスワードが正常に更新されました。新しいパスワードでサインインできます。",
+    ko: "비밀번호가 성공적으로 업데이트되었습니다. 이제 새 비밀번호로 로그인할 수 있습니다.",
+    zh: "您的密码已成功更新。现在您可以使用新密码登录。",
+  },
+  "reset.login": {
+    en: "Go to Login",
+    vi: "Đến trang đăng nhập",
+    es: "Ir al inicio de sesión",
+    fr: "Aller à la connexion",
+    de: "Zur Anmeldung gehen",
+    ja: "ログインページへ",
+    ko: "로그인 페이지로",
+    zh: "前往登录页面",
+  },
+
+  // Error messages
+  "error.password.required": {
+    en: "Password is required",
+    vi: "Mật khẩu là bắt buộc",
+    es: "La contraseña es obligatoria",
+    fr: "Le mot de passe est obligatoire",
+    de: "Passwort ist erforderlich",
+    ja: "パスワードは必須です",
+    ko: "비밀번호가 필요합니다",
+    zh: "密码是必填项",
+  },
+  "error.password.mismatch": {
+    en: "Passwords do not match",
+    vi: "Mật khẩu không khớp",
+    es: "Las contraseñas no coinciden",
+    fr: "Les mots de passe ne correspondent pas",
+    de: "Passwörter stimmen nicht überein",
+    ja: "パスワードが一致しません",
+    ko: "비밀번호가 일치하지 않습니다",
+    zh: "密码不匹配",
+  },
+  "error.reset.failed": {
+    en: "Failed to reset password. Please try again.",
+    vi: "Không thể đặt lại mật khẩu. Vui lòng thử lại.",
+    es: "Error al restablecer la contraseña. Por favor, inténtalo de nuevo.",
+    fr: "Échec de la réinitialisation du mot de passe. Veuillez réessayer.",
+    de: "Passwort konnte nicht zurückgesetzt werden. Bitte versuchen Sie es erneut.",
+    ja: "パスワードのリセットに失敗しました。もう一度お試しください。",
+    ko: "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.",
+    zh: "重置密码失败。请重试。",
+  },
+
+  // Error messages
+  "error.email.required": {
+    en: "Email is required",
+    vi: "Email là bắt buộc",
+    es: "El correo electrónico es obligatorio",
+    fr: "L'e-mail est obligatoire",
+    de: "E-Mail ist erforderlich",
+    ja: "メールアドレスは必須です",
+    ko: "이메일이 필요합니다",
+    zh: "邮箱是必填项",
+  },
+  "error.email.invalid": {
+    en: "Please enter a valid email address",
+    vi: "Vui lòng nhập địa chỉ email hợp lệ",
+    es: "Por favor ingresa una dirección de correo electrónico válida",
+    fr: "Veuillez entrer une adresse e-mail valide",
+    de: "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    ja: "有効なメールアドレスを入力してください",
+    ko: "유효한 이메일 주소를 입력하세요",
+    zh: "请输入有效的邮箱地址",
+  },
+  "error.forgot.failed": {
+    en: "Failed to send reset email. Please try again.",
+    vi: "Không thể gửi email đặt lại. Vui lòng thử lại.",
+    es: "Error al enviar el correo de restablecimiento. Por favor, inténtalo de nuevo.",
+    fr: "Échec de l'envoi de l'e-mail de réinitialisation. Veuillez réessayer.",
+    de: "E-Mail zum Zurücksetzen konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    ja: "リセットメールの送信に失敗しました。もう一度お試しください。",
+    ko: "재설정 이메일 전송에 실패했습니다. 다시 시도해주세요.",
+    zh: "发送重置邮件失败。请重试。",
+  },
+  "auth.loginRequired": {
+    en: "Please login to use favorites feature",
+    vi: "Vui lòng đăng nhập để sử dụng tính năng yêu thích",
+    es: "Por favor inicia sesión para usar la función de favoritos",
+    fr: "Veuillez vous connecter pour utiliser la fonction favoris",
+    de: "Bitte melden Sie sich an, um die Favoriten-Funktion zu nutzen",
+    ja: "お気に入り機能を使用するにはログインしてください",
+    ko: "즐겨찾기 기능을 사용하려면 로그인하세요",
+    zh: "请登录以使用收藏功能",
+  },
+  "auth.signIn": {
+    en: "Sign In",
+    vi: "Đăng nhập",
+    es: "Iniciar sesión",
+    fr: "Se connecter",
+    de: "Anmelden",
+    ja: "ログイン",
+    ko: "로그인",
+    zh: "登录",
+  },
+  "auth.signUp": {
+    en: "Sign Up",
+    vi: "Đăng ký",
+    es: "Registrarse",
+    fr: "S'inscrire",
+    de: "Registrieren",
+    ja: "登録",
+    ko: "회원가입",
+    zh: "注册",
+  },
+  "auth.logout": {
+    en: "Sign Out",
+    vi: "Đăng xuất",
+    es: "Cerrar sesión",
+    fr: "Se déconnecter",
+    de: "Abmelden",
+    ja: "ログアウト",
+    ko: "로그아웃",
+    zh: "登出",
+  },
+  "auth.login.button": {
+    en: "Sign In",
+    vi: "Đăng nhập",
+    es: "Iniciar sesión",
+    fr: "Se connecter",
+    de: "Anmelden",
+    ja: "ログイン",
+    ko: "로그인",
+    zh: "登录",
+  },
+  "auth.login.loading": {
+    en: "Signing in...",
+    vi: "Đang đăng nhập...",
+    es: "Iniciando sesión...",
+    fr: "Connexion en cours...",
+    de: "Anmeldung läuft...",
+    ja: "ログイン中...",
+    ko: "로그인 중...",
+    zh: "登录中...",
+  },
+  "auth.social.or": {
+    en: "Or sign in with",
+    vi: "Hoặc đăng nhập với",
+    es: "O iniciar sesión con",
+    fr: "Ou se connecter avec",
+    de: "Oder anmelden mit",
+    ja: "またはログイン",
+    ko: "또는 로그인",
+    zh: "或者登录",
+  },
+
+  // Products
+  "products.featured": {
+    en: "Featured Products",
+    vi: "Sản phẩm nổi bật",
+    es: "Productos destacados",
+    fr: "Produits vedettes",
+    de: "Empfohlene Produkte",
+    ja: "おすすめ商品",
+    ko: "추천 상품",
+    zh: "推荐产品",
+  },
+  "products.price": {
+    en: "Price",
+    vi: "Giá",
+    es: "Precio",
+    fr: "Prix",
+    de: "Preis",
+    ja: "価格",
+    ko: "가격",
+    zh: "价格",
+  },
+  "products.stock": {
+    en: "In Stock",
+    vi: "Còn hàng",
+    es: "En stock",
+    fr: "En stock",
+    de: "Auf Lager",
+    ja: "在庫あり",
+    ko: "재고 있음",
+    zh: "有库存",
+  },
+  "products.outOfStock": {
+    en: "Out of Stock",
+    vi: "Hết hàng",
+    es: "Agotado",
+    fr: "Rupture de stock",
+    de: "Ausverkauft",
+    ja: "在庫切れ",
+    ko: "품절",
+    zh: "缺货",
+  },
+  "products.addToCart": {
+    en: "Add to Cart",
+    vi: "Thêm vào giỏ",
+    es: "Agregar al carrito",
+    fr: "Ajouter au panier",
+    de: "In den Warenkorb",
+    ja: "カートに追加",
+    ko: "장바구니에 추가",
+    zh: "加入购物车",
+  },
+  "products.buyNow": {
+    en: "Buy Now",
+    vi: "Mua ngay",
+    es: "Comprar ahora",
+    fr: "Acheter maintenant",
+    de: "Jetzt kaufen",
+    ja: "今すぐ購入",
+    ko: "지금 구매",
+    zh: "立即购买",
+  },
+  "products.viewDetails": {
+    en: "View Details",
+    vi: "Xem chi tiết",
+    es: "Ver detalles",
+    fr: "Voir les détails",
+    de: "Details anzeigen",
+    ja: "詳細を見る",
+    ko: "자세히 보기",
+    zh: "查看详情",
+  },
+  "products.title": {
+    en: "Products",
+    vi: "Sản phẩm",
+    es: "Productos",
+    fr: "Produits",
+    de: "Produkte",
+    ja: "商品",
+    ko: "제품",
+    zh: "产品",
+  },
+  "products.found": {
+    en: "Found",
+    vi: "Tìm thấy",
+    es: "Encontrado",
+    fr: "Trouvé",
+    de: "Gefunden",
+    ja: "見つかりました",
+    ko: "발견",
+    zh: "找到",
+  },
+  "products.items": {
+    en: "products",
+    vi: "sản phẩm",
+    es: "productos",
+    fr: "produits",
+    de: "Produkte",
+    ja: "商品",
+    ko: "제품",
+    zh: "产品",
+  },
+  "products.search": {
+    en: "Search",
+    vi: "Tìm kiếm",
+    es: "Buscar",
+    fr: "Rechercher",
+    de: "Suchen",
+    ja: "検索",
+    ko: "검색",
+    zh: "搜索",
+  },
+  "products.searchPlaceholder": {
+    en: "Search products...",
+    vi: "Tìm sản phẩm...",
+    es: "Buscar productos...",
+    fr: "Rechercher des produits...",
+    de: "Produkte suchen...",
+    ja: "商品を検索...",
+    ko: "제품 검색...",
+    zh: "搜索产品...",
+  },
+  "products.categories": {
+    en: "Categories",
+    vi: "Danh mục",
+    es: "Categorías",
+    fr: "Catégories",
+    de: "Kategorien",
+    ja: "カテゴリー",
+    ko: "카테고리",
+    zh: "分类",
+  },
+  "products.allCategories": {
+    en: "All Categories",
+    vi: "Tất cả danh mục",
+    es: "Todas las Categorías",
+    fr: "Toutes les Catégories",
+    de: "Alle Kategorien",
+    ja: "すべてのカテゴリー",
+    ko: "모든 카테고리",
+    zh: "所有分类",
+  },
+  "products.priceRange": {
+    en: "Price Range",
+    vi: "Khoảng giá",
+    es: "Rango de Precio",
+    fr: "Gamme de Prix",
+    de: "Preisspanne",
+    ja: "価格帯",
+    ko: "가격 범위",
+    zh: "价格范围",
+  },
+  "products.from": {
+    en: "From",
+    vi: "Từ",
+    es: "Desde",
+    fr: "De",
+    de: "Von",
+    ja: "から",
+    ko: "부터",
+    zh: "从",
+  },
+  "products.to": {
+    en: "To",
+    vi: "Đến",
+    es: "Hasta",
+    fr: "À",
+    de: "Bis",
+    ja: "まで",
+    ko: "까지",
+    zh: "到",
+  },
+  "products.reset": {
+    en: "Reset",
+    vi: "Đặt lại",
+    es: "Restablecer",
+    fr: "Réinitialiser",
+    de: "Zurücksetzen",
+    ja: "リセット",
+    ko: "재설정",
+    zh: "重置",
+  },
+  "products.sortBy": {
+    en: "Sort by",
+    vi: "Sắp xếp",
+    es: "Ordenar por",
+    fr: "Trier par",
+    de: "Sortieren nach",
+    ja: "並び順",
+    ko: "정렬",
+    zh: "排序",
+  },
+  "products.sortName": {
+    en: "Name A-Z",
+    vi: "Tên A-Z",
+    es: "Nombre A-Z",
+    fr: "Nom A-Z",
+    de: "Name A-Z",
+    ja: "名前 A-Z",
+    ko: "이름 A-Z",
+    zh: "名称 A-Z",
+  },
+  "products.sortPriceLow": {
+    en: "Price Low to High",
+    vi: "Giá thấp đến cao",
+    es: "Precio Bajo a Alto",
+    fr: "Prix Bas à Élevé",
+    de: "Preis Niedrig zu Hoch",
+    ja: "価格 安い順",
+    ko: "가격 낮은순",
+    zh: "价格从低到高",
+  },
+  "products.sortPriceHigh": {
+    en: "Price High to Low",
+    vi: "Giá cao đến thấp",
+    es: "Precio Alto a Bajo",
+    fr: "Prix Élevé à Bas",
+    de: "Preis Hoch zu Niedrig",
+    ja: "価格 高い順",
+    ko: "가격 높은순",
+    zh: "价格从高到低",
+  },
+  "products.sortNewest": {
+    en: "Newest",
+    vi: "Mới nhất",
+    es: "Más Nuevo",
+    fr: "Plus Récent",
+    de: "Neueste",
+    ja: "最新",
+    ko: "최신순",
+    zh: "最新",
+  },
+  "products.display": {
+    en: "Display",
+    vi: "Hiển thị",
+    es: "Mostrar",
+    fr: "Afficher",
+    de: "Anzeigen",
+    ja: "表示",
+    ko: "표시",
+    zh: "显示",
+  },
+  "products.noProducts": {
+    en: "No products found",
+    vi: "Không tìm thấy sản phẩm",
+    es: "No se encontraron productos",
+    fr: "Aucun produit trouvé",
+    de: "Keine Produkte gefunden",
+    ja: "商品が見つかりません",
+    ko: "제품을 찾을 수 없습니다",
+    zh: "未找到产品",
+  },
+  "products.noProductsDesc": {
+    en: "Try changing your filters or search keywords",
+    vi: "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm",
+    es: "Intenta cambiar tus filtros o palabras clave de búsqueda",
+    fr: "Essayez de changer vos filtres ou mots-clés de recherche",
+    de: "Versuchen Sie, Ihre Filter oder Suchbegriffe zu ändern",
+    ja: "フィルターや検索キーワードを変更してみてください",
+    ko: "필터나 검색 키워드를 변경해 보세요",
+    zh: "尝试更改过滤器或搜索关键词",
+  },
+
+  // Cart
+  "cart.title": {
+    en: "Shopping Cart",
+    vi: "Giỏ hàng",
+    es: "Carrito de compras",
+    fr: "Panier d'achat",
+    de: "Einkaufswagen",
+    ja: "ショッピングカート",
+    ko: "장바구니",
+    zh: "购物车",
+  },
+  "cart.empty": {
+    en: "Your cart is empty",
+    vi: "Giỏ hàng của bạn đang trống",
+    es: "Tu carrito está vacío",
+    fr: "Votre panier est vide",
+    de: "Ihr Warenkorb ist leer",
+    ja: "カートは空です",
+    ko: "장바구니가 비어있습니다",
+    zh: "您的购物车是空的",
+  },
+  "cart.quantity": {
+    en: "Quantity",
+    vi: "Số lượng",
+    es: "Cantidad",
+    fr: "Quantité",
+    de: "Menge",
+    ja: "数量",
+    ko: "수량",
+    zh: "数量",
+  },
+  "cart.subtotal": {
+    en: "Subtotal",
+    vi: "Tạm tính",
+    es: "Subtotal",
+    fr: "Sous-total",
+    de: "Zwischensumme",
+    ja: "小計",
+    ko: "소계",
+    zh: "小计",
+  },
+  "cart.shipping": {
+    en: "Shipping",
+    vi: "Phí vận chuyển",
+    es: "Envío",
+    fr: "Livraison",
+    de: "Versand",
+    ja: "送料",
+    ko: "배송비",
+    zh: "运费",
+  },
+  "cart.total": {
+    en: "Total",
+    vi: "Tổng cộng",
+    es: "Total",
+    fr: "Total",
+    de: "Gesamt",
+    ja: "合計",
+    ko: "총계",
+    zh: "总计",
+  },
+  "cart.checkout": {
+    en: "Proceed to Checkout",
+    vi: "Tiến hành thanh toán",
+    es: "Proceder al pago",
+    fr: "Procéder au paiement",
+    de: "Zur Kasse gehen",
+    ja: "チェックアウトに進む",
+    ko: "결제 진행",
+    zh: "去结账",
+  },
+
+  // Common
+  "common.search": {
+    en: "Search",
+    vi: "Tìm kiếm",
+    es: "Buscar",
+    fr: "Rechercher",
+    de: "Suchen",
+    ja: "検索",
+    ko: "검색",
+    zh: "搜索",
+  },
+  "common.loading": {
+    en: "Loading...",
+    vi: "Đang tải...",
+    es: "Cargando...",
+    fr: "Chargement...",
+    de: "Lädt...",
+    ja: "読み込み中...",
+    ko: "로딩 중...",
+    zh: "加载中...",
+  },
+  "common.save": {
+    en: "Save",
+    vi: "Lưu",
+    es: "Guardar",
+    fr: "Enregistrer",
+    de: "Speichern",
+    ja: "保存",
+    ko: "저장",
+    zh: "保存",
+  },
+  "common.cancel": {
+    en: "Cancel",
+    vi: "Hủy",
+    es: "Cancelar",
+    fr: "Annuler",
+    de: "Abbrechen",
+    ja: "キャンセル",
+    ko: "취소",
+    zh: "取消",
+  },
+  "common.edit": {
+    en: "Edit",
+    vi: "Chỉnh sửa",
+    es: "Editar",
+    fr: "Modifier",
+    de: "Bearbeiten",
+    ja: "編集",
+    ko: "편집",
+    zh: "编辑",
+  },
+  "common.delete": {
+    en: "Delete",
+    vi: "Xóa",
+    es: "Eliminar",
+    fr: "Supprimer",
+    de: "Löschen",
+    ja: "削除",
+    ko: "삭제",
+    zh: "删除",
+  },
+  "common.back": {
+    en: "Back",
+    vi: "Quay lại",
+    es: "Volver",
+    fr: "Retour",
+    de: "Zurück",
+    ja: "戻る",
+    ko: "뒤로",
+    zh: "返回",
+  },
+  "common.next": {
+    en: "Next",
+    vi: "Tiếp theo",
+    es: "Siguiente",
+    fr: "Suivant",
+    de: "Weiter",
+    ja: "次へ",
+    ko: "다음",
+    zh: "下一步",
+  },
+  "common.close": {
+    en: "Close",
+    vi: "Đóng",
+    es: "Cerrar",
+    fr: "Fermer",
+    de: "Schließen",
+    ja: "閉じる",
+    ko: "닫기",
+    zh: "关闭",
+  },
+
+  // Error messages
+  "error.required": {
+    en: "This field is required",
+    vi: "Trường này là bắt buộc",
+    es: "Este campo es obligatorio",
+    fr: "Ce champ est requis",
+    de: "Dieses Feld ist erforderlich",
+    ja: "この項目は必須です",
+    ko: "이 필드는 필수입니다",
+    zh: "此字段为必填项",
+  },
+  "error.password.short": {
+    en: "Password must be at least 6 characters",
+    vi: "Mật khẩu phải có ít nhất 6 ký tự",
+    es: "La contraseña debe tener al menos 6 caracteres",
+    fr: "Le mot de passe doit contenir au moins 6 caractères",
+    de: "Passwort muss mindestens 6 Zeichen haben",
+    ja: "パスワードは6文字以上である必要があります",
+    ko: "비밀번호는 최소 6자 이상이어야 합니다",
+    zh: "密码至少需要6个字符",
+  },
+
+  // Hero Section
+  "hero.title": {
+    en: "Model Car Collection",
+    vi: "Bộ Sưu Tập Xe Mô Hình",
+    es: "Colección de Autos a Escala",
+    fr: "Collection de Voitures Miniatures",
+    de: "Modellauto-Sammlung",
+    ja: "モデルカーコレクション",
+    ko: "모델카 컬렉션",
+    zh: "模型汽车收藏",
+  },
+  "hero.title.part1": {
+    en: "Build Your",
+    vi: "Xây Dựng",
+    es: "Construye Tu",
+    fr: "Construisez Votre",
+    de: "Bauen Sie Ihre",
+    ja: "あなたの",
+    ko: "당신의",
+    zh: "建造您的",
+  },
+  "hero.title.part2": {
+    en: "Dream Garage",
+    vi: "Garage Mơ Ước",
+    es: "Garaje de Ensueño",
+    fr: "Garage de Rêve",
+    de: "Traumgarage",
+    ja: "夢のガレージ",
+    ko: "꿈의 차고",
+    zh: "梦想车库",
+  },
+  "hero.subtitle": {
+    en: "Discover premium die-cast model cars from luxury supercars to classic vintage automobiles",
+    vi: "Khám phá bộ sưu tập xe mô hình cao cấp từ siêu xe sang trọng đến xe cổ điển",
+    es: "Descubre autos a escala premium desde superautos de lujo hasta automóviles vintage clásicos",
+    fr: "Découvrez des voitures miniatures haut de gamme, des supercars de luxe aux automobiles vintage classiques",
+    de: "Entdecke Premium-Modellautos von Luxus-Supersportwagen bis hin zu klassischen Oldtimern",
+    ja: "高級スーパーカーからクラシックなヴィンテージ自動車まで、プレミアムダイキャストモデルカーを発見",
+    ko: "럭셔리 슈퍼카부터 클래식 빈티지 자동차까지 프리미엄 다이캐스트 모델카를 발견하세요",
+    zh: "探索从豪华超级跑车到经典老爷车的高端压铸模型汽车",
+  },
+  "hero.shopNow": {
+    en: "Shop Now",
+    vi: "Mua sắm ngay",
+    es: "Comprar ahora",
+    fr: "Acheter maintenant",
+    de: "Jetzt einkaufen",
+    ja: "今すぐ購入",
+    ko: "지금 쇼핑",
+    zh: "立即购物",
+  },
+  "hero.viewCategories": {
+    en: "View Categories",
+    vi: "Xem danh mục",
+    es: "Ver categorías",
+    fr: "Voir les catégories",
+    de: "Kategorien anzeigen",
+    ja: "カテゴリーを見る",
+    ko: "카테고리 보기",
+    zh: "查看分类",
+  },
+
+  // Features
+  "features.shipping": {
+    en: "Free Shipping",
+    vi: "Giao hàng miễn phí",
+    es: "Envío gratuito",
+    fr: "Livraison gratuite",
+    de: "Kostenloser Versand",
+    ja: "送料無料",
+    ko: "무료 배송",
+    zh: "免费送货",
+  },
+  "features.shipping.desc": {
+    en: "Free shipping for orders over $50",
+    vi: "Miễn phí vận chuyển cho đơn hàng trên 500K",
+    es: "Envío gratuito para pedidos superiores a $50",
+    fr: "Livraison gratuite pour les commandes de plus de 50 $",
+    de: "Kostenloser Versand für Bestellungen über 50 $",
+    ja: "50ドル以上のご注文で送料無料",
+    ko: "$50 이상 주문 시 무료 배송",
+    zh: "订单满$50免费送货",
+  },
+  "features.payment": {
+    en: "Secure Payment",
+    vi: "Thanh toán an toàn",
+    es: "Pago seguro",
+    fr: "Paiement sécurisé",
+    de: "Sichere Zahlung",
+    ja: "安全な支払い",
+    ko: "안전한 결제",
+    zh: "安全支付",
+  },
+  "features.payment.desc": {
+    en: "100% secure information with SSL technology",
+    vi: "Bảo mật thông tin 100% với công nghệ SSL",
+    es: "Información 100% segura con tecnología SSL",
+    fr: "Informations 100% sécurisées avec la technologie SSL",
+    de: "100% sichere Informationen mit SSL-Technologie",
+    ja: "SSL技術による100%安全な情報",
+    ko: "SSL 기술로 100% 안전한 정보",
+    zh: "SSL技术100%安全信息",
+  },
+  "features.returns": {
+    en: "30-Day Returns",
+    vi: "Đổi trả 30 ngày",
+    es: "Devoluciones de 30 días",
+    fr: "Retours de 30 jours",
+    de: "30-Tage-Rückgabe",
+    ja: "30日間返品",
+    ko: "30일 반품",
+    zh: "30天退货",
+  },
+  "features.returns.desc": {
+    en: "Free returns within 30 days",
+    vi: "Đổi trả miễn phí trong vòng 30 ngày",
+    es: "Devoluciones gratuitas dentro de 30 días",
+    fr: "Retours gratuits dans les 30 jours",
+    de: "Kostenlose Rückgabe innerhalb von 30 Tagen",
+    ja: "30日以内の無料返品",
+    ko: "30일 이내 무료 반품",
+    zh: "30天内免费退货",
+  },
+  "features.support": {
+    en: "24/7 Support",
+    vi: "Hỗ trợ 24/7",
+    es: "Soporte 24/7",
+    fr: "Support 24/7",
+    de: "24/7 Support",
+    ja: "24/7サポート",
+    ko: "24/7 지원",
+    zh: "24/7 支持",
+  },
+  "features.support.desc": {
+    en: "Customer consultation and support 24/7",
+    vi: "Tư vấn và hỗ trợ khách hàng 24/7",
+    es: "Consulta y soporte al cliente 24/7",
+    fr: "Consultation et support client 24/7",
+    de: "Kundenberatung und Support 24/7",
+    ja: "24/7カスタマーサポート",
+    ko: "24/7 고객 상담 및 지원",
+    zh: "24/7客户咨询和支持",
+  },
+
+  // Newsletter
+  "newsletter.title": {
+    en: "Subscribe to Promotions",
+    vi: "Đăng ký nhận tin khuyến mãi",
+    es: "Suscríbete a promociones",
+    fr: "S'abonner aux promotions",
+    de: "Für Aktionen anmelden",
+    ja: "プロモーションの購読",
+    ko: "프로모션 구독",
+    zh: "订阅促销信息",
+  },
+  "newsletter.desc": {
+    en: "Be the first to know about new products and special offers from us",
+    vi: "Hãy là người đầu tiên biết về các sản phẩm mới và ưu đãi đặc biệt từ chúng tôi",
+    es: "Sé el primero en conocer los nuevos productos y ofertas especiales de nosotros",
+    fr: "Soyez le premier à connaître nos nouveaux produits et offres spéciales",
+    de: "Seien Sie der Erste, der von neuen Produkten und Sonderangeboten erfährt",
+    ja: "新製品や特別オファーを最初に知る",
+    ko: "새로운 제품과 특별 혜택을 가장 먼저 알아보세요",
+    zh: "率先了解我们的新产品和特别优惠",
+  },
+  "newsletter.placeholder": {
+    en: "Enter your email",
+    vi: "Nhập email của bạn",
+    es: "Ingresa tu correo",
+    fr: "Entrez votre e-mail",
+    de: "E-Mail eingeben",
+    ja: "メールアドレスを入力",
+    ko: "이메일을 입력하세요",
+    zh: "输入您的邮箱",
+  },
+  "newsletter.subscribe": {
+    en: "Subscribe",
+    vi: "Đăng ký",
+    es: "Suscribirse",
+    fr: "S'abonner",
+    de: "Abonnieren",
+    ja: "購読",
+    ko: "구독",
+    zh: "订阅",
+  },
+
+  // Header
+  "header.banner": {
+    en: "🏎️ Free shipping for orders over 500,000đ - Build Your Dream Garage!",
+    vi: "🏎️ Miễn phí vận chuyển cho đơn hàng trên 500.000đ - Xây dựng garage mơ ước!",
+    es: "🏎️ Envío gratis para pedidos superiores a 500,000đ - ¡Construye tu garaje de ensueño!",
+    fr: "🏎️ Livraison gratuite pour les commandes de plus de 500,000đ - Construisez le garage de vos rêves !",
+    de: "🏎️ Kostenloser Versand für Bestellungen über 500,000đ - Bauen Sie Ihre Traumgarage!",
+    ja: "🏎️ 500,000đ以上のご注文で送料無料 - 夢のガレージを作ろう！",
+    ko: "🏎️ 500,000đ 이상 주문 시 무료배송 - 꿈의 차고를 만들어보세요!",
+    zh: "🏎️ 订单满500,000đ免费送货 - 打造您的梦想车库！",
+  },
+  "header.favorites.title": {
+    en: "Favorites",
+    vi: "Sản phẩm yêu thích",
+    es: "Favoritos",
+    fr: "Favoris",
+    de: "Favoriten",
+    ja: "お気に入り",
+    ko: "즐겨찾기",
+    zh: "收藏夹",
+  },
+
+  // Search
+  "search.placeholder": {
+    en: "Search model cars...",
+    vi: "Tìm kiếm mô hình xe...",
+    es: "Buscar modelos de autos...",
+    fr: "Rechercher des modèles de voitures...",
+    de: "Automodelle suchen...",
+    ja: "車のモデルを検索...",
+    ko: "자동차 모델 검색...",
+    zh: "搜索汽车模型...",
+  },
+
+  // Sections
+  "section.categories": {
+    en: "Car Model Collections",
+    vi: "Bộ Sưu Tập Xe Mô Hình",
+    es: "Colecciones de Autos a Escala",
+    fr: "Collections de Voitures Miniatures",
+    de: "Modellauto-Sammlungen",
+    ja: "モデルカーコレクション",
+    ko: "모델카 컬렉션",
+    zh: "模型汽车收藏",
+  },
+  "section.categories.desc": {
+    en: "Explore premium die-cast models from luxury sports cars to classic vintage automobiles",
+    vi: "Khám phá các mô hình cao cấp từ xe thể thao sang trọng đến xe cổ điển",
+    es: "Explora modelos premium desde autos deportivos de lujo hasta automóviles vintage clásicos",
+    fr: "Explorez des modèles haut de gamme, des voitures de sport de luxe aux automobiles vintage classiques",
+    de: "Entdecke Premium-Modelle von Luxus-Sportwagen bis zu klassischen Oldtimern",
+    ja: "高級スポーツカーからクラシックなヴィンテージ自動車まで、プレミアムモデルを探索",
+    ko: "럭셔리 스포츠카부터 클래식 빈티지 자동차까지 프리미엄 모델을 탐험하세요",
+    zh: "探索从豪华跑车到经典老爷车的高端模型",
+  },
+
+  discount: {
+    en: "Discount",
+    vi: "Giảm giá",
+    es: "Descuento",
+    fr: "Remise",
+    de: "Rabatt",
+    ja: "割引",
+    ko: "할인",
+    zh: "折扣",
+  },
+  "brand.tagline": {
+    en: "Collect. Display. Admire. Drive.",
+    vi: "Sưu tập. Trưng bày. Chiêm ngưỡng. Lái xe.",
+    es: "Coleccionar. Exhibir. Admirar. Conducir.",
+    fr: "Collectionner. Exposer. Admirer. Conduire.",
+    de: "Sammeln. Ausstellen. Bewundern. Fahren.",
+    ja: "収集。展示。感嘆。運転。",
+    ko: "수집. 전시. 감상. 운전.",
+    zh: "收藏。展示。欣赏。驾驶。",
+  },
+
+  // Featured Products
+  "section.featured.title": {
+    en: "Featured Products",
+    vi: "Sản phẩm nổi bật",
+    es: "Productos destacados",
+    fr: "Produits vedettes",
+    de: "Empfohlene Produkte",
+    ja: "おすすめ商品",
+    ko: "추천 상품",
+    zh: "推荐产品",
+  },
+  "section.featured.desc": {
+    en: "Most loved products",
+    vi: "Những sản phẩm được yêu thích nhất",
+    es: "Productos más queridos",
+    fr: "Produits les plus aimés",
+    de: "Beliebteste Produkte",
+    ja: "最も愛される商品",
+    ko: "가장 사랑받는 상품",
+    zh: "最受喜爱的产品",
+  },
+  "section.viewAll": {
+    en: "View All",
+    vi: "Xem tất cả",
+    es: "Ver todo",
+    fr: "Voir tout",
+    de: "Alle anzeigen",
+    ja: "すべて見る",
+    ko: "모두 보기",
+    zh: "查看全部",
+  },
+  "section.viewAllProducts": {
+    en: "View All Products",
+    vi: "Xem tất cả sản phẩm",
+    es: "Ver todos los productos",
+    fr: "Voir tous les produits",
+    de: "Alle Produkte anzeigen",
+    ja: "すべての商品を見る",
+    ko: "모든 상품 보기",
+    zh: "查看所有产品",
+  },
+};
 
 interface I18nContextType {
   locale: string;
-  setLocale: (locale: string) => void;
-  t: (key: string, fallback?: string) => string;
-  translations: Translations;
+  t: (key: string) => string;
+  changeLanguage: (locale: string) => void;
+  createLocalizedPath: (path: string) => string;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
-const SUPPORTED_LOCALES = ["en", "vi", "es", "fr", "de", "ja", "ko", "zh"];
-const DEFAULT_LOCALE = "en";
+export function I18nProvider({
+  children,
+  initialLocale,
+}: {
+  children: ReactNode;
+  initialLocale: string;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState(DEFAULT_LOCALE);
-  const [translations, setTranslations] = useState<Translations>({});
-
-  // Load translations when locale changes
-  useEffect(() => {
-    const loadTranslations = async () => {
-      try {
-        const response = await fetch(`/locales/${locale}/common.json`);
-        const data = await response.json();
-        setTranslations(data);
-      } catch (error) {
-        console.error(
-          `Failed to load translations for locale: ${locale}`,
-          error
-        );
-        // Fallback to English if loading fails
-        if (locale !== DEFAULT_LOCALE) {
-          try {
-            const fallbackResponse = await fetch(
-              `/locales/${DEFAULT_LOCALE}/common.json`
-            );
-            const fallbackData = await fallbackResponse.json();
-            setTranslations(fallbackData);
-          } catch (fallbackError) {
-            console.error(
-              "Failed to load fallback translations",
-              fallbackError
-            );
-          }
-        }
-      }
-    };
-
-    loadTranslations();
-  }, [locale]);
-
-  // Initialize locale from localStorage or browser preference
-  useEffect(() => {
-    const savedLocale = localStorage.getItem("locale");
-    if (savedLocale && SUPPORTED_LOCALES.includes(savedLocale)) {
-      setLocaleState(savedLocale);
-    } else {
-      // Detect browser language
-      const browserLang = navigator.language.slice(0, 2);
-      if (SUPPORTED_LOCALES.includes(browserLang)) {
-        setLocaleState(browserLang);
-      }
-    }
-  }, []);
-
-  const setLocale = (newLocale: string) => {
-    if (SUPPORTED_LOCALES.includes(newLocale)) {
-      setLocaleState(newLocale);
-      localStorage.setItem("locale", newLocale);
-    }
+  const t = (key: string): string => {
+    return (
+      translations[key]?.[initialLocale] || translations[key]?.["en"] || key
+    );
   };
 
-  const t = (key: string, fallback?: string): string => {
-    const keys = key.split(".");
-    let value: string | Translations = translations;
+  const changeLanguage = (newLocale: string) => {
+    const segments = pathname.split("/");
+    segments[1] = newLocale; // Replace the language segment
+    const newPath = segments.join("/");
+    router.push(newPath);
+  };
 
-    for (const k of keys) {
-      if (value && typeof value === "object" && k in value) {
-        value = value[k];
-      } else {
-        return fallback || key;
-      }
-    }
-
-    return typeof value === "string" ? value : fallback || key;
+  const createLocalizedPath = (path: string): string => {
+    // Remove leading slash if present
+    const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+    return `/${initialLocale}/${cleanPath}`;
   };
 
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t, translations }}>
+    <I18nContext.Provider
+      value={{ locale: initialLocale, t, changeLanguage, createLocalizedPath }}
+    >
       {children}
     </I18nContext.Provider>
   );

@@ -7,6 +7,7 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/authSlice";
 import { useTranslation } from "@/hooks/useTranslation";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
+import Logo from "@/components/ui/Logo";
 import {
   ShoppingCart,
   User,
@@ -22,10 +23,10 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { user } = useAppSelector((state: any) => state.auth);
-  const { totalItems } = useAppSelector((state: any) => state.cart);
+  const { user } = useAppSelector((state) => state.auth);
+  const { totalItems } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
+  const { t, createLocalizedPath } = useTranslation();
 
   const handleLogout = () => {
     dispatch(logout());
@@ -35,18 +36,18 @@ const Header = () => {
   return (
     <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
       {/* Top banner */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-2 text-sm">
-        🎉 Miễn phí vận chuyển cho đơn hàng trên 500.000đ
+      <div className="bg-gradient-to-r from-red-500 via-yellow-400 to-blue-500 text-white text-center py-2 text-sm font-bold lego-text">
+        {t("header.banner")}
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Package className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">EComShop</span>
+          <Link
+            href={createLocalizedPath("/")}
+            className="flex items-center space-x-3"
+          >
+            <Logo />
           </Link>
 
           {/* Search bar */}
@@ -54,7 +55,7 @@ const Header = () => {
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Tìm kiếm sản phẩm..."
+                placeholder={t("search.placeholder")}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -64,29 +65,29 @@ const Header = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link
-              href="/products"
+              href={createLocalizedPath("/products")}
               className="text-gray-700 hover:text-blue-600 transition-colors"
             >
-              Sản phẩm
+              {t("nav.products")}
             </Link>
             <Link
-              href="/categories"
+              href={createLocalizedPath("/categories")}
               className="text-gray-700 hover:text-blue-600 transition-colors"
             >
-              Danh mục
+              {t("nav.categories")}
             </Link>
             <Link
-              href="/about"
+              href={createLocalizedPath("/about")}
               className="text-gray-700 hover:text-blue-600 transition-colors"
             >
-              Về chúng tôi
+              {t("nav.about")}
             </Link>
 
             {/* Wishlist */}
             <Link
-              href="/favorites"
+              href={createLocalizedPath("/favorites")}
               className="relative p-2 text-gray-700 hover:text-red-600 transition-colors"
-              title="Sản phẩm yêu thích"
+              title={t("header.favorites.title")}
             >
               <Heart className="h-6 w-6" />
               {/* TODO: Add favorites count */}
@@ -94,7 +95,7 @@ const Header = () => {
 
             {/* Cart */}
             <Link
-              href="/cart"
+              href={createLocalizedPath("/cart")}
               className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors"
             >
               <ShoppingCart className="h-6 w-6" />
@@ -129,37 +130,37 @@ const Header = () => {
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                     <Link
-                      href="/profile"
+                      href={createLocalizedPath("/profile")}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
                       <User className="h-4 w-4 mr-2" />
-                      Hồ sơ của tôi
+                      {t("nav.profile")}
                     </Link>
                     <Link
-                      href="/favorites"
+                      href={createLocalizedPath("/favorites")}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
                       <Heart className="h-4 w-4 mr-2" />
-                      Sản phẩm yêu thích
+                      {t("nav.favorites")}
                     </Link>
                     <Link
-                      href="/orders"
+                      href={createLocalizedPath("/orders")}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
                       <Package className="h-4 w-4 mr-2" />
-                      Đơn hàng của tôi
+                      {t("nav.orders")}
                     </Link>
                     {user?.role === "admin" && (
                       <Link
-                        href="/admin"
+                        href={createLocalizedPath("/admin")}
                         className="flex items-center px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         <Package className="h-4 w-4 mr-2" />
-                        Quản trị Admin
+                        {t("nav.admin")}
                       </Link>
                     )}
                     <hr className="my-1" />
@@ -168,7 +169,7 @@ const Header = () => {
                       className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      Đăng xuất
+                      {t("auth.logout")}
                     </button>
                   </div>
                 )}
@@ -177,16 +178,16 @@ const Header = () => {
               <div className="flex items-center space-x-4">
                 <LanguageSwitcher />
                 <Link
-                  href="/login"
+                  href={createLocalizedPath("/login")}
                   className="text-gray-700 hover:text-blue-600 transition-colors"
                 >
-                  {t("auth.signIn", "Đăng nhập")}
+                  {t("auth.signIn")}
                 </Link>
                 <Link
-                  href="/register"
+                  href={createLocalizedPath("/register")}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  {t("auth.signUp", "Đăng ký")}
+                  {t("auth.signUp")}
                 </Link>
               </div>
             )}
@@ -223,25 +224,25 @@ const Header = () => {
         <div className="md:hidden bg-white border-t border-gray-200">
           <div className="px-4 py-2 space-y-2">
             <Link
-              href="/products"
+              href={createLocalizedPath("/products")}
               className="block py-2 text-gray-700 hover:text-blue-600"
               onClick={() => setIsMenuOpen(false)}
             >
-              Sản phẩm
+              {t("nav.products")}
             </Link>
             <Link
-              href="/categories"
+              href={createLocalizedPath("/categories")}
               className="block py-2 text-gray-700 hover:text-blue-600"
               onClick={() => setIsMenuOpen(false)}
             >
-              Danh mục
+              {t("nav.categories")}
             </Link>
             <Link
-              href="/about"
+              href={createLocalizedPath("/about")}
               className="block py-2 text-gray-700 hover:text-blue-600"
               onClick={() => setIsMenuOpen(false)}
             >
-              Về chúng tôi
+              {t("nav.about")}
             </Link>
 
             {user ? (
@@ -266,40 +267,40 @@ const Header = () => {
                   </div>
                 </div>
                 <Link
-                  href="/profile"
+                  href={createLocalizedPath("/profile")}
                   className="block py-2 text-gray-700 hover:text-blue-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Hồ sơ của tôi
+                  {t("nav.profile")}
                 </Link>
                 <Link
-                  href="/favorites"
+                  href={createLocalizedPath("/favorites")}
                   className="block py-2 text-gray-700 hover:text-blue-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Sản phẩm yêu thích
+                  {t("nav.favorites")}
                 </Link>
                 <Link
-                  href="/cart"
+                  href={createLocalizedPath("/cart")}
                   className="block py-2 text-gray-700 hover:text-blue-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Giỏ hàng ({totalItems})
+                  {t("nav.cart")} ({totalItems})
                 </Link>
                 <Link
-                  href="/orders"
+                  href={createLocalizedPath("/orders")}
                   className="block py-2 text-gray-700 hover:text-blue-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Đơn hàng của tôi
+                  {t("nav.orders")}
                 </Link>
                 {user?.role === "admin" && (
                   <Link
-                    href="/admin"
+                    href={createLocalizedPath("/admin")}
                     className="block py-2 text-blue-600 hover:text-blue-700 font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Quản trị Admin
+                    {t("nav.admin")}
                   </Link>
                 )}
                 <button
@@ -309,24 +310,24 @@ const Header = () => {
                   }}
                   className="block w-full text-left py-2 text-gray-700 hover:text-blue-600"
                 >
-                  Đăng xuất
+                  {t("auth.logout")}
                 </button>
               </>
             ) : (
               <>
                 <Link
-                  href="/login"
+                  href={createLocalizedPath("/login")}
                   className="block py-2 text-gray-700 hover:text-blue-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Đăng nhập
+                  {t("auth.signIn")}
                 </Link>
                 <Link
-                  href="/register"
+                  href={createLocalizedPath("/register")}
                   className="block py-2 text-gray-700 hover:text-blue-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Đăng ký
+                  {t("auth.signUp")}
                 </Link>
               </>
             )}

@@ -31,4 +31,8 @@ export class CategoriesService {
   async remove(id: number): Promise<void> {
     await this.categoriesRepository.delete(id);
   }
+
+  async deleteAll(): Promise<void> {
+    await this.categoriesRepository.clear();
+  }
 }

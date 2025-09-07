@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ReduxProvider from "@/components/providers/ReduxProvider";
-import { Providers } from "@/components/providers/Providers";
-import { I18nProvider } from "@/hooks/useTranslation";
+import "../styles/lego-theme.css";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "E-Commerce Store",
-  description: "Cửa hàng thương mại điện tử hàng đầu Việt Nam",
+  title: "Vuaxemohinh Shop - Cửa Hàng Mô Hình Xe Hơi",
+  description:
+    "Cửa hàng mô hình xe hơi hàng đầu Việt Nam. Khám phá bộ sưu tập xe mô hình chất lượng cao từ các thương hiệu nổi tiếng.",
 };
 
 export default function RootLayout({
@@ -26,15 +26,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <I18nProvider>
-          <Providers>
-            <ReduxProvider>{children}</ReduxProvider>
-          </Providers>
-        </I18nProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

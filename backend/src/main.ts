@@ -7,10 +7,34 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS for frontend communication
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    process.env.FRONTEND_URL,
+    process.env.VERCEL_FRONTEND_URL,
+    "https://vuaxemohinh.vercel.app",
+  ].filter(Boolean); // Remove undefined values
+
   app.enableCors({
-    origin: "*",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      // Check if origin is in allowed list or matches Vercel pattern
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.includes("vercel.app") ||
+        origin.includes("localhost")
+      ) {
+        return callback(null, true);
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   });
 
   // Global validation pipe

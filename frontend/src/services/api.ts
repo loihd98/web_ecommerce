@@ -66,6 +66,24 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  async forgotPassword(email: string) {
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ email }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async resetPassword(token: string, password: string) {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ token, password }),
+    });
+    return this.handleResponse(response);
+  }
+
   // Products APIs
   async getProducts(params?: {
     category?: number;
@@ -102,7 +120,7 @@ class ApiService {
   }
 
   async getFeaturedProducts() {
-    const response = await fetch(`${API_BASE_URL}/products?featured=true`, {
+    const response = await fetch(`${API_BASE_URL}/products/featured`, {
       headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);

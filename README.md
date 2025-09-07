@@ -1,35 +1,91 @@
-# E-commerce Monorepo - Vercel Deployment
+# 🏎️ VuaXeMoHinh - Model Cars E-commerce
 
-🚀 **LIVE DEPLOYMENT:**
+A modern, multilingual e-commerce platform for model cars with dark/light theme support.
 
-- **Frontend**: https://frontend-d2eoj7jk6-dev-eb0dacb6.vercel.app
-- **Backend API**: https://backend-mosmnow5p-dev-eb0dacb6.vercel.app
+## 🚀 Quick Start
 
-This repository contains both backend (NestJS) and frontend (Next.js) for the e-commerce application.
+### Prerequisites
 
-## Structure
+- Node.js 18+ installed
+- PowerShell (Windows)
 
+### Deployment
+
+```powershell
+# Clone and navigate to project
+git clone <your-repo>
+cd web_thuong_mai
+
+# Install dependencies
+cd backend && npm install
+cd ../frontend && npm install
+
+# Deploy (builds and starts both services)
+cd ..
+./deploy.ps1
 ```
-/
-├── backend/          # NestJS API (Deploy as Vercel Functions)
-├── frontend/         # Next.js App (Deploy as Vercel App)
-├── README.md
-└── vercel.json       # Monorepo configuration
+
+## 🌟 Features
+
+### 🎨 Frontend Features
+
+- **Multi-language Support**: 8 languages (EN, VI, ES, FR, DE, IT, RU, ZH)
+- **Dark/Light Theme**: Smooth theme switching with system preference detection
+- **Responsive Design**: Mobile-first design with Tailwind CSS
+- **SEO Optimized**: Next.js 15 with static generation
+- **Modern UI**: Car-themed branding with gradient effects
+
+### 🔧 Backend Features
+
+- **NestJS Framework**: Modular, scalable architecture
+- **Authentication**: JWT-based with forgot/reset password
+- **Database**: SQLite (development) / PostgreSQL (production)
+- **API Documentation**: Auto-generated Swagger docs
+- **CORS Configuration**: Properly configured for cross-origin requests
+
+### � E-commerce Features
+
+- Product catalog with categories
+- Shopping cart functionality
+- Order management system
+- User authentication and profiles
+- Admin dashboard
+- Payment integration ready
+
+## 🌐 URLs
+
+After deployment, access:
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+- **API Docs**: http://localhost:5000/api/docs
+- 🌍 **Multi-Language**: 8 languages with URL-based routing
+- 📱 **Responsive**: Mobile-first design
+- ⚡ **Modern Stack**: Next.js 15, NestJS, TypeORM, Redux
+
+## �‍♂️ Local Development
+
+```bash
+# Backend
+cd backend
+npm install
+npm run start:dev
+
+# Frontend
+cd frontend
+npm install
+npm run dev
 ```
 
-## Deployment
+For detailed setup instructions, see the [Complete Guide](./COMPLETE_GUIDE.md).
 
-### Backend API
+---
 
-- **URL**: `https://backend-mosmnow5p-dev-eb0dacb6.vercel.app/api`
-- **Type**: Serverless Functions
-- **Database**: Vercel Postgres
+**📋 All documentation has been consolidated into the [Complete Guide](./COMPLETE_GUIDE.md) for easier maintenance and better organization.**
 
-### Frontend App
-
-- **URL**: `https://frontend-d2eoj7jk6-dev-eb0dacb6.vercel.app`
-- **Type**: Next.js Static/SSR
-- **Features**: E-commerce storefront + Admin panel
+- localStorage persistence
+- Fallback to English for missing translations
+- Responsive design for all languages
 
 ## Demo Accounts
 
@@ -43,6 +99,7 @@ Test: test@user.com / demo123
 
 - **Backend**: NestJS, TypeORM, PostgreSQL, JWT
 - **Frontend**: Next.js 14, TypeScript, Redux, Tailwind CSS
+- **Internationalization**: Custom i18n implementation for App Router
 - **Database**: Vercel Postgres
 - **Hosting**: Vercel (Backend + Frontend)
 - **Auth**: JWT + NextAuth.js (Social Login)

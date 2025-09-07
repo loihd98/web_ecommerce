@@ -181,12 +181,12 @@ const Footer = () => {
                 <div className="flex items-center space-x-3">
                   <MapPin className="h-5 w-5 text-gray-400" />
                   <span className="text-gray-400">
-                    123 Đường ABC, Quận 1, TP.HCM
+                    CT6 Kien Hung, Ha Dong, Hanoi
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-400">0123 456 789</span>
+                  <span className="text-gray-400">0342429911</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="h-5 w-5 text-gray-400" />

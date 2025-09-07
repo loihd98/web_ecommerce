@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VuaXeMoHinh CORS Tester</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcf7f, #4d9de0);
+        min-height: 100vh;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 2em;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
+      }
+      button {
+        background: linear-gradient(45deg, #ff6b6b, #4d9de0);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+        font-weight: bold;
+      }
+      button:hover {
+        opacity: 0.8;
+      }
+      .result {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .input-group {
+        margin: 10px 0;
+      }
+      input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 5px;
+      }
+      label {
+        font-weight: bold;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">🏎️ VuaXeMoHinh</div>
+      <h1>CORS Configuration Tester</h1>
+
+      <div class="input-group">
+        <label for="backendUrl">Backend URL:</label>
+        <input
+          type="text"
+          id="backendUrl"
+          placeholder="https://your-backend.vercel.app/api"
+          value="https://backend-cmyi8whj0-dev-eb0dacb6.vercel.app/api"
+        />
+      </div>
+
+      <div class="test-section">
+        <h3>🔌 Basic API Connection Test</h3>
+        <button onclick="testBasicConnection()">Test API Connection</button>
+        <div id="connectionResult" class="result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>📦 Products API Test</h3>
+        <button onclick="testProductsAPI()">Test GET /products</button>
+        <div id="productsResult" class="result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🔐 Auth API Test</h3>
+        <button onclick="testForgotPassword()">Test Forgot Password</button>
+        <div class="input-group">
+          <input
+            type="email"
+            id="testEmail"
+            placeholder="test@example.com"
+            value="test@vuaxemohinh.com"
+          />
+        </div>
+        <div id="authResult" class="result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🌐 CORS Headers Test</h3>
+        <button onclick="testCORSHeaders()">Check CORS Headers</button>
+        <div id="corsResult" class="result"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>📚 API Documentation</h3>
+        <button onclick="openAPIDocs()">Open Swagger Docs</button>
+        <div id="docsResult" class="result"></div>
+      </div>
+    </div>
+
+    <script>
+      function getBackendUrl() {
+        return document.getElementById("backendUrl").value.replace(/\/$/, "");
+      }
+
+      function showResult(elementId, message, isSuccess) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = "result " + (isSuccess ? "success" : "error");
+      }
+
+      async function testBasicConnection() {
+        const backendUrl = getBackendUrl();
+        showResult("connectionResult", "Testing connection...", true);
+
+        try {
+          const response = await fetch(`${backendUrl}/products`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            showResult(
+              "connectionResult",
+              `✅ Connection successful!\nStatus: ${response.status}\nCORS: Working`,
+              true
+            );
+          } else {
+            showResult(
+              "connectionResult",
+              `⚠️ Connection established but got error:\nStatus: ${response.status}\nResponse: ${response.statusText}`,
+              false
+            );
+          }
+        } catch (error) {
+          showResult(
+            "connectionResult",
+            `❌ Connection failed!\nError: ${error.message}\n\nThis is likely a CORS issue if you see:\n- "blocked by CORS policy"\n- "Failed to fetch"`,
+            false
+          );
+        }
+      }
+
+      async function testProductsAPI() {
+        const backendUrl = getBackendUrl();
+        showResult("productsResult", "Testing products API...", true);
+
+        try {
+          const response = await fetch(`${backendUrl}/products`);
+          const data = await response.json();
+
+          showResult(
+            "productsResult",
+            `✅ Products API working!\nStatus: ${
+              response.status
+            }\nProducts count: ${
+              data.length || "Unknown"
+            }\nFirst product: ${JSON.stringify(data[0] || "None", null, 2)}`,
+            true
+          );
+        } catch (error) {
+          showResult(
+            "productsResult",
+            `❌ Products API failed!\nError: ${error.message}`,
+            false
+          );
+        }
+      }
+
+      async function testForgotPassword() {
+        const backendUrl = getBackendUrl();
+        const email = document.getElementById("testEmail").value;
+        showResult("authResult", "Testing forgot password API...", true);
+
+        try {
+          const response = await fetch(`${backendUrl}/auth/forgot-password`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: email }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            showResult(
+              "authResult",
+              `✅ Forgot password API working!\nStatus: ${
+                response.status
+              }\nResponse: ${JSON.stringify(data, null, 2)}`,
+              true
+            );
+          } else {
+            showResult(
+              "authResult",
+              `⚠️ API responded with error:\nStatus: ${
+                response.status
+              }\nError: ${JSON.stringify(data, null, 2)}`,
+              false
+            );
+          }
+        } catch (error) {
+          showResult(
+            "authResult",
+            `❌ Forgot password API failed!\nError: ${error.message}`,
+            false
+          );
+        }
+      }
+
+      async function testCORSHeaders() {
+        const backendUrl = getBackendUrl();
+        showResult("corsResult", "Testing CORS headers...", true);
+
+        try {
+          const response = await fetch(`${backendUrl}/products`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const corsHeaders = {
+            "Access-Control-Allow-Origin": response.headers.get(
+              "Access-Control-Allow-Origin"
+            ),
+            "Access-Control-Allow-Methods": response.headers.get(
+              "Access-Control-Allow-Methods"
+            ),
+            "Access-Control-Allow-Headers": response.headers.get(
+              "Access-Control-Allow-Headers"
+            ),
+            "Access-Control-Allow-Credentials": response.headers.get(
+              "Access-Control-Allow-Credentials"
+            ),
+          };
+
+          showResult(
+            "corsResult",
+            `✅ CORS Headers received:\n${JSON.stringify(
+              corsHeaders,
+              null,
+              2
+            )}`,
+            true
+          );
+        } catch (error) {
+          showResult(
+            "corsResult",
+            `❌ Could not fetch CORS headers!\nError: ${error.message}`,
+            false
+          );
+        }
+      }
+
+      function openAPIDocs() {
+        const backendUrl = getBackendUrl();
+        const docsUrl = backendUrl.replace("/api", "") + "/api/docs";
+        showResult("docsResult", `Opening: ${docsUrl}`, true);
+        window.open(docsUrl, "_blank");
+      }
+
+      // Auto-test on page load
+      window.onload = function () {
+        console.log("🏎️ VuaXeMoHinh CORS Tester loaded");
+        console.log("Use the buttons above to test your CORS configuration");
+      };
+    </script>
+  </body>
+</html>

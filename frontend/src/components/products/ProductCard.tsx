@@ -5,8 +5,8 @@ import { useAppDispatch } from "@/store/hooks";
 import { addToCart } from "@/store/cartSlice";
 import { Product } from "@/types";
 import { Star, ShoppingCart, Heart } from "lucide-react";
-import Button from "@/components/ui/Button";
 import { apiService } from "@/services/api";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProductCardProps {
   product: Product;
@@ -18,6 +18,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   viewMode = "grid",
 }) => {
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
@@ -47,7 +48,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     // Check if user is logged in
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Vui lòng đăng nhập để sử dụng tính năng yêu thích");
+      alert(t("auth.loginRequired"));
       return;
     }
 
@@ -86,7 +87,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     : 0;
 
   return (
-    <div className="group relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden">
+    <div className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-2xl transition-all duration-300 overflow-hidden lego-card">
       {/* Product Image */}
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-square overflow-hidden">
@@ -99,15 +100,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Discount Badge */}
           {discountPercentage > 0 && (
-            <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            <div className="absolute top-3 left-3 lego-brick lego-red text-white text-xs font-bold px-3 py-2 rounded-lg shadow-lg">
               -{discountPercentage}%
             </div>
           )}
 
           {/* Featured Badge */}
           {product.isFeatured && (
-            <div className="absolute top-3 right-3 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-              Nổi bật
+            <div className="absolute top-3 right-3 lego-brick lego-yellow text-black text-xs font-bold px-3 py-2 rounded-lg shadow-lg">
+              ⭐ Nổi bật
             </div>
           )}
 
@@ -116,7 +117,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <button
               onClick={handleToggleFavorite}
               disabled={isTogglingFavorite}
-              className={`p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors mb-2 block ${
+              className={`p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors mb-2 block lego-float ${
                 isTogglingFavorite ? "opacity-50 cursor-not-allowed" : ""
               }`}
               title={isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
@@ -149,7 +150,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Product Name */}
         <Link href={`/products/${product.id}`}>
-          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
+          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-red-600 transition-colors lego-text">
             {product.name}
           </h3>
         </Link>
@@ -195,15 +196,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* Add to Cart Button */}
-        <Button
+        <button
           onClick={handleAddToCart}
           disabled={product.stock === 0}
-          className="w-full"
-          size="sm"
+          className={`w-full lego-btn ${
+            product.stock === 0
+              ? "opacity-50 cursor-not-allowed"
+              : "lego-btn-blue"
+          }`}
         >
-          <ShoppingCart className="h-4 w-4 mr-2" />
+          <ShoppingCart className="h-4 w-4 mr-2 inline" />
           {product.stock === 0 ? "Hết hàng" : "Thêm vào giỏ"}
-        </Button>
+        </button>
       </div>
     </div>
   );

@@ -1,0 +1,311 @@
+/* LEGO Theme Styles */
+
+.lego-brick {
+  position: relative;
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+}
+
+.lego-brick::before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  right: 10%;
+  bottom: 10%;
+  background: radial-gradient(
+      circle at 25% 25%,
+      transparent 20%,
+      rgba(255, 255, 255, 0.1) 21%,
+      rgba(255, 255, 255, 0.1) 40%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle at 75% 25%,
+      transparent 20%,
+      rgba(255, 255, 255, 0.1) 21%,
+      rgba(255, 255, 255, 0.1) 40%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle at 25% 75%,
+      transparent 20%,
+      rgba(255, 255, 255, 0.1) 21%,
+      rgba(255, 255, 255, 0.1) 40%,
+      transparent 41%
+    ),
+    radial-gradient(
+      circle at 75% 75%,
+      transparent 20%,
+      rgba(255, 255, 255, 0.1) 21%,
+      rgba(255, 255, 255, 0.1) 40%,
+      transparent 41%
+    );
+  border-radius: 4px;
+}
+
+.lego-yellow {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+}
+
+.lego-blue {
+  background: linear-gradient(135deg, #0066cc, #3399ff);
+}
+
+.lego-red {
+  background: linear-gradient(135deg, #cc0000, #ff3333);
+}
+
+.lego-green {
+  background: linear-gradient(135deg, #00aa00, #33cc33);
+}
+
+.lego-white {
+  background: linear-gradient(135deg, #ffffff, #f0f0f0);
+}
+
+.lego-black {
+  background: linear-gradient(135deg, #333333, #666666);
+}
+
+.lego-orange {
+  background: linear-gradient(135deg, #ff6600, #ff9933);
+}
+
+.lego-purple {
+  background: linear-gradient(135deg, #8833cc, #aa55ff);
+}
+
+/* LEGO Card Hover Effects */
+.lego-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.lego-card::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(
+    45deg,
+    #ff0000 0%,
+    #ffff00 14%,
+    #00ff00 28%,
+    #00ffff 42%,
+    #0000ff 57%,
+    #ff00ff 71%,
+    #ff0000 85%,
+    #ffff00 100%
+  );
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lego-card:hover::before {
+  opacity: 1;
+}
+
+.lego-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* LEGO Button Styles */
+.lego-btn {
+  position: relative;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.lego-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.lego-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.lego-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.lego-btn-yellow {
+  background: linear-gradient(135deg, #ffd700, #cc9900);
+  color: #333;
+}
+
+.lego-btn-blue {
+  background: linear-gradient(135deg, #0066cc, #004499);
+}
+
+.lego-btn-green {
+  background: linear-gradient(135deg, #00aa00, #007700);
+}
+
+/* LEGO Grid Pattern */
+.lego-grid {
+  background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.05) 0px,
+      transparent 2px,
+      transparent 20px,
+      rgba(255, 255, 255, 0.05) 22px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 0px,
+      transparent 2px,
+      transparent 20px,
+      rgba(255, 255, 255, 0.05) 22px
+    );
+}
+
+/* LEGO Stacking Animation */
+@keyframes legoStack {
+  0% {
+    transform: translateY(-20px) scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-5px) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.lego-stack {
+  animation: legoStack 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* LEGO Floating Animation */
+@keyframes legoFloat {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.lego-float {
+  animation: legoFloat 3s ease-in-out infinite;
+}
+
+/* LEGO Pulse Animation */
+@keyframes legoPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+  }
+}
+
+.lego-pulse {
+  animation: legoPulse 2s infinite;
+}
+
+/* LEGO Text Styles */
+.lego-text {
+  font-family: "Arial Black", "Helvetica", sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.lego-title {
+  background: linear-gradient(45deg, #ff4444, #ffff00, #44ff44, #4444ff);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: legoGradient 3s ease infinite;
+}
+
+@keyframes legoGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* LEGO Category Icons */
+.lego-icon {
+  display: inline-block;
+  font-size: 2rem;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s ease;
+}
+
+.lego-icon:hover {
+  transform: scale(1.2) rotate(5deg);
+}
+
+/* LEGO Responsive Breakpoints */
+@media (max-width: 768px) {
+  .lego-card {
+    margin: 8px;
+  }
+
+  .lego-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .lego-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .lego-btn {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+
+  .lego-title {
+    font-size: 1.5rem;
+  }
+}

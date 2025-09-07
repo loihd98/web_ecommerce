@@ -2,7 +2,7 @@
 
 🚀 **LIVE DEPLOYMENT:**
 
-- **Frontend**: https://frontend-28x1fqxqf-dev-eb0dacb6.vercel.app
+- **Frontend**: https://frontend-d2eoj7jk6-dev-eb0dacb6.vercel.app
 - **Backend API**: https://backend-mosmnow5p-dev-eb0dacb6.vercel.app
 
 This repository contains both backend (NestJS) and frontend (Next.js) for the e-commerce application.
@@ -27,7 +27,7 @@ This repository contains both backend (NestJS) and frontend (Next.js) for the e-
 
 ### Frontend App
 
-- **URL**: `https://frontend-28x1fqxqf-dev-eb0dacb6.vercel.app`
+- **URL**: `https://frontend-d2eoj7jk6-dev-eb0dacb6.vercel.app`
 - **Type**: Next.js Static/SSR
 - **Features**: E-commerce storefront + Admin panel
 

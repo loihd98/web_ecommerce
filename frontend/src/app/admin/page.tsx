@@ -19,7 +19,16 @@ interface DashboardStats {
   totalUsers: number;
   totalCategories: number;
   totalRevenue: number;
-  recentOrders: any[];
+  recentOrders: Array<{
+    id: number;
+    orderNumber: string;
+    customerName: string;
+    shippingName: string;
+    total: number;
+    status: string;
+    date: string;
+    createdAt: string;
+  }>;
 }
 
 export default function AdminDashboard() {
@@ -47,7 +56,7 @@ export default function AdminDashboard() {
 
         // Calculate stats
         const totalRevenue = orders.reduce(
-          (sum: number, order: any) => sum + (order.total || 0),
+          (sum: number, order: { total?: number }) => sum + (order.total || 0),
           0
         );
 
@@ -129,7 +138,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <AdminLayout title="Dashboard">
+      <AdminLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
@@ -138,7 +147,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <AdminLayout title="Dashboard">
+    <AdminLayout>
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

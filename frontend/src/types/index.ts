@@ -26,7 +26,7 @@ export interface Product {
   tags: string[];
   sku?: string;
   weight?: number;
-  attributes?: any;
+  attributes?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }

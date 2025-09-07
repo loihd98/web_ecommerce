@@ -1,3 +1,5 @@
+import { Product, User, Category } from "@/types";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -106,7 +108,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async createProduct(productData: any) {
+  async createProduct(productData: Partial<Product>) {
     const response = await fetch(`${API_BASE_URL}/products`, {
       method: "POST",
       headers: this.getAuthHeaders(),
@@ -115,7 +117,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async updateProduct(id: number, productData: any) {
+  async updateProduct(id: number, productData: Partial<Product>) {
     const response = await fetch(`${API_BASE_URL}/products/${id}`, {
       method: "PUT",
       headers: this.getAuthHeaders(),
@@ -147,7 +149,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async createCategory(categoryData: any) {
+  async createCategory(categoryData: Partial<Category>) {
     const response = await fetch(`${API_BASE_URL}/categories`, {
       method: "POST",
       headers: this.getAuthHeaders(),
@@ -156,7 +158,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async updateCategory(id: number, categoryData: any) {
+  async updateCategory(id: number, categoryData: Partial<Category>) {
     const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
       method: "PUT",
       headers: this.getAuthHeaders(),
@@ -181,7 +183,7 @@ class ApiService {
       price: number;
       discountPrice?: number;
       quantity: number;
-      productAttributes?: any;
+      productAttributes?: Record<string, unknown>;
     }>;
     shippingInfo: {
       fullName: string;
@@ -252,7 +254,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async updateUser(id: number, userData: any) {
+  async updateUser(id: number, userData: Partial<User>) {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: "PUT",
       headers: this.getAuthHeaders(),

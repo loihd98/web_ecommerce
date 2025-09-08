@@ -5,11 +5,16 @@ import Link from "next/link";
 interface LogoProps {
   href?: string;
   className?: string;
+  asLink?: boolean;
 }
 
-export default function Logo({ href = "/", className = "" }: LogoProps) {
-  return (
-    <Link href={href} className={`flex items-center space-x-3 ${className}`}>
+export default function Logo({
+  href = "/",
+  className = "",
+  asLink = true,
+}: LogoProps) {
+  const logoContent = (
+    <div className={`flex items-center space-x-3 ${className}`}>
       <div className="relative">
         <div className="w-10 h-10 bg-gradient-to-r from-red-500 via-yellow-400 to-blue-500 rounded-lg flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
           <span className="text-white text-lg font-bold">🏎️</span>
@@ -24,6 +29,12 @@ export default function Logo({ href = "/", className = "" }: LogoProps) {
           Model Cars Collection
         </span>
       </div>
-    </Link>
+    </div>
   );
+
+  if (!asLink) {
+    return logoContent;
+  }
+
+  return <Link href={href}>{logoContent}</Link>;
 }

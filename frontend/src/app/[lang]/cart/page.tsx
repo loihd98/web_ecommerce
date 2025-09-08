@@ -8,6 +8,9 @@ import Layout from "@/components/layout/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { updateQuantity, removeFromCart } from "@/store/cartSlice";
 import {
   Plus,
   Minus,
@@ -21,22 +24,15 @@ import {
 // Disable static generation for this page
 export const dynamic = "force-dynamic";
 
-interface CartItem {
-  id: number;
-  productId: number;
-  name: string;
-  price: number;
-  discountPrice?: number;
-  image: string;
-  quantity: number;
-  stock: number;
-  attributes: Record<string, string | number>;
-}
-
 export default function CartPage() {
   const router = useRouter();
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
+  // Get cart data from Redux store
+  const { items: cartItems, isLoading: loading } = useSelector(
+    (state: RootState) => state.cart
+  );
+
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
@@ -44,47 +40,8 @@ export default function CartPage() {
   } | null>(null);
 
   useEffect(() => {
-    // Mock cart data for demo
-    const mockCartItems: CartItem[] = [
-      {
-        id: 1,
-        productId: 1,
-        name: "iPhone 15 Pro Max 256GB",
-        price: 29990000,
-        discountPrice: 27990000,
-        image: "/placeholder-product.jpg",
-        quantity: 1,
-        stock: 15,
-        attributes: { color: "Titan Tự Nhiên", storage: "256GB" },
-      },
-      {
-        id: 2,
-        productId: 3,
-        name: "Samsung Galaxy S24 Ultra",
-        price: 31990000,
-        discountPrice: 29990000,
-        image: "/placeholder-product.jpg",
-        quantity: 2,
-        stock: 12,
-        attributes: { color: "Đen Titan", storage: "256GB" },
-      },
-      {
-        id: 3,
-        productId: 6,
-        name: "Nồi cơm điện Panasonic 1.8L",
-        price: 2990000,
-        discountPrice: 2490000,
-        image: "/placeholder-product.jpg",
-        quantity: 1,
-        stock: 25,
-        attributes: { capacity: "1.8L", brand: "Panasonic" },
-      },
-    ];
-
-    setTimeout(() => {
-      setCartItems(mockCartItems);
-      setLoading(false);
-    }, 1000);
+    // Cart data is managed by Redux store, no need to fetch here
+    // The cart items are already available from the Redux selector
   }, []);
 
   const formatPrice = (price: number) => {
@@ -94,21 +51,13 @@ export default function CartPage() {
     }).format(price);
   };
 
-  const updateQuantity = (id: number, newQuantity: number) => {
+  const updateCartQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-
-    setCartItems((items) =>
-      items.map((item) => {
-        if (item.id === id) {
-          return { ...item, quantity: Math.min(newQuantity, item.stock) };
-        }
-        return item;
-      })
-    );
+    dispatch(updateQuantity({ productId, quantity: newQuantity }));
   };
 
-  const removeItem = (id: number) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
+  const removeCartItem = (productId: string) => {
+    dispatch(removeFromCart(productId));
   };
 
   const applyCoupon = () => {
@@ -137,7 +86,7 @@ export default function CartPage() {
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
-      const itemPrice = item.discountPrice || item.price;
+      const itemPrice = item.product.salePrice || item.product.price;
       return total + itemPrice * item.quantity;
     }, 0);
   };
@@ -233,13 +182,15 @@ export default function CartPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
-                <Card key={item.id}>
+                <Card key={item._id}>
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-4">
                       <div className="relative w-20 h-20 bg-gray-200 rounded-lg overflow-hidden">
                         <Image
-                          src={item.image}
-                          alt={item.name}
+                          src={
+                            item.product.images[0] || "/placeholder-product.jpg"
+                          }
+                          alt={item.product.name}
                           fill
                           className="object-cover"
                         />
@@ -250,34 +201,35 @@ export default function CartPage() {
                           href={`/products/${item.productId}`}
                           className="text-lg font-semibold text-gray-900 hover:text-blue-600 line-clamp-2"
                         >
-                          {item.name}
+                          {item.product.name}
                         </Link>
                         <div className="mt-1 flex flex-wrap gap-2">
-                          {Object.entries(item.attributes).map(
-                            ([key, value]) => (
-                              <Badge
-                                key={key}
-                                variant="info"
-                                className="text-xs"
-                              >
-                                {key}: {value}
-                              </Badge>
-                            )
-                          )}
+                          {item.product.attributes &&
+                            Object.entries(item.product.attributes).map(
+                              ([key, value]) => (
+                                <Badge
+                                  key={key}
+                                  variant="info"
+                                  className="text-xs"
+                                >
+                                  {key}: {String(value)}
+                                </Badge>
+                              )
+                            )}
                         </div>
                         <div className="mt-2 flex items-center space-x-2">
-                          {item.discountPrice ? (
+                          {item.product.salePrice ? (
                             <>
                               <span className="text-lg font-bold text-red-600">
-                                {formatPrice(item.discountPrice)}
+                                {formatPrice(item.product.salePrice)}
                               </span>
                               <span className="text-sm text-gray-500 line-through">
-                                {formatPrice(item.price)}
+                                {formatPrice(item.product.price)}
                               </span>
                             </>
                           ) : (
                             <span className="text-lg font-bold text-gray-900">
-                              {formatPrice(item.price)}
+                              {formatPrice(item.product.price)}
                             </span>
                           )}
                         </div>
@@ -287,7 +239,10 @@ export default function CartPage() {
                         <div className="flex items-center border border-gray-300 rounded-md">
                           <button
                             onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
+                              updateCartQuantity(
+                                item.productId,
+                                item.quantity - 1
+                              )
                             }
                             disabled={item.quantity <= 1}
                             className="p-2 hover:bg-gray-100 disabled:opacity-50"
@@ -299,9 +254,12 @@ export default function CartPage() {
                           </span>
                           <button
                             onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
+                              updateCartQuantity(
+                                item.productId,
+                                item.quantity + 1
+                              )
                             }
-                            disabled={item.quantity >= item.stock}
+                            disabled={item.quantity >= item.product.stock}
                             className="p-2 hover:bg-gray-100 disabled:opacity-50"
                           >
                             <Plus className="h-4 w-4" />
@@ -309,7 +267,7 @@ export default function CartPage() {
                         </div>
 
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeCartItem(item.productId)}
                           className="text-red-600 hover:text-red-800 p-2"
                           title="Xóa sản phẩm"
                         >

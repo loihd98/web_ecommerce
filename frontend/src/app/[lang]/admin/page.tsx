@@ -4,14 +4,7 @@ import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { apiService } from "@/services/api";
-import {
-  Package,
-  ShoppingBag,
-  Users,
-  Tags,
-  TrendingUp,
-  DollarSign,
-} from "lucide-react";
+import { Package, ShoppingBag, Tags, DollarSign } from "lucide-react";
 
 // Disable static generation for this page
 export const dynamic = "force-dynamic";
@@ -51,11 +44,16 @@ export default function AdminDashboard() {
         setLoading(true);
 
         // Fetch all data in parallel
-        const [products, orders, categories] = await Promise.all([
+        const [products, ordersResponse, categories] = await Promise.all([
           apiService.getProducts(),
           apiService.getOrders(),
           apiService.getCategories(),
         ]);
+
+        // Extract orders array from response
+        const orders = Array.isArray(ordersResponse)
+          ? ordersResponse
+          : ordersResponse?.orders || [];
 
         // Calculate stats
         const totalRevenue = orders.reduce(

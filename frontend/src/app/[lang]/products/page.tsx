@@ -6,35 +6,38 @@ import ProductCard from "@/components/products/ProductCard";
 import { Card, CardContent } from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { Search, Filter, Grid, List, ChevronDown } from "lucide-react";
+import { Search, Filter, Grid, List } from "lucide-react";
 import { apiService } from "@/services/api";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface Category {
-  id: number;
+  _id: string;
   name: string;
   description: string;
-  image: string;
+  slug: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 interface Product {
-  id: number;
+  _id: string;
   name: string;
   description: string;
   price: number;
-  discountPrice?: number;
+  salePrice?: number;
   stock: number;
   images: string[];
-  categoryId: number;
-  category: Category;
+  categoryId: Category;
   isActive: boolean;
   isFeatured: boolean;
   tags: string[];
   sku: string;
   weight: number;
+  viewCount: number;
+  soldCount: number;
+  rating: number;
+  reviewCount: number;
   attributes: Record<string, string | number>;
   createdAt: string;
   updatedAt: string;
@@ -46,7 +49,7 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [priceRange, setPriceRange] = useState({ min: 0, max: 100000000 });
@@ -58,13 +61,35 @@ export default function ProductsPage() {
         setLoading(true);
 
         // Fetch categories and products in parallel
-        const [categoriesData, productsData] = await Promise.all([
+        const [categoriesResponse, productsResponse] = await Promise.all([
           apiService.getCategories(),
           apiService.getProducts(),
         ]);
 
-        setCategories(categoriesData);
+        setCategories(
+          Array.isArray(categoriesResponse) ? categoriesResponse : []
+        );
+        // Extract products array from response
+        const productsData = Array.isArray(productsResponse)
+          ? productsResponse
+          : productsResponse?.products || [];
         setProducts(productsData);
+
+        // Debug: Log data types
+        if (categoriesResponse.length > 0) {
+          console.log(
+            "Category ID type:",
+            typeof categoriesResponse[0].id,
+            categoriesResponse[0].id
+          );
+        }
+        if (productsData.length > 0) {
+          console.log(
+            "Product categoryId type:",
+            typeof productsData[0].categoryId,
+            productsData[0].categoryId
+          );
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         // Keep empty arrays as fallback
@@ -78,12 +103,13 @@ export default function ProductsPage() {
     fetchData();
   }, []);
   // Filter products based on search, category, and price range
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = (products || []).filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === null || product.categoryId === selectedCategory;
+      selectedCategory === null ||
+      String(product.categoryId._id) === String(selectedCategory);
     const matchesPrice =
       product.price >= priceRange.min && product.price <= priceRange.max;
 
@@ -107,13 +133,6 @@ export default function ProductsPage() {
         return 0;
     }
   });
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price);
-  };
 
   return (
     <Layout>
@@ -159,29 +178,33 @@ export default function ProductsPage() {
                     {t("products.categories")}
                   </h3>
                   <div className="space-y-2">
-                    <button
+                    <div
                       onClick={() => setSelectedCategory(null)}
-                      className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      className={`w-full text-left px-3 py-2 rounded-md transition-colors cursor-pointer select-none ${
                         selectedCategory === null
                           ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                           : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
                       }`}
                     >
                       {t("products.allCategories")}
-                    </button>
-                    {categories.map((category) => (
-                      <button
-                        key={category.id}
-                        onClick={() => setSelectedCategory(category.id)}
-                        className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                          selectedCategory === category.id
-                            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                            : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
-                        }`}
-                      >
-                        {category.name}
-                      </button>
-                    ))}
+                    </div>
+                    {categories.map((category) => {
+                      const isSelected =
+                        String(selectedCategory) === String(category._id);
+                      return (
+                        <div
+                          key={category._id}
+                          onClick={() => setSelectedCategory(category._id)}
+                          className={`w-full text-left px-3 py-2 rounded-md transition-colors cursor-pointer select-none ${
+                            isSelected
+                              ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                              : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                          }`}
+                        >
+                          {category.name}
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -269,22 +292,30 @@ export default function ProductsPage() {
                       {t("products.display")}:
                     </span>
                     <button
-                      onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-md transition-colors ${
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setViewMode("grid");
+                      }}
+                      className={`p-2 rounded-md transition-colors select-none ${
                         viewMode === "grid"
                           ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
                           : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                       }`}
+                      type="button"
                     >
                       <Grid className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-md transition-colors ${
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setViewMode("list");
+                      }}
+                      className={`p-2 rounded-md transition-colors select-none ${
                         viewMode === "list"
                           ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
                           : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                       }`}
+                      type="button"
                     >
                       <List className="h-5 w-5" />
                     </button>
@@ -313,7 +344,7 @@ export default function ProductsPage() {
                   {sortedProducts.length > 0 ? (
                     sortedProducts.map((product: Product) => (
                       <ProductCard
-                        key={product.id}
+                        key={product._id}
                         product={product}
                         viewMode={viewMode}
                       />

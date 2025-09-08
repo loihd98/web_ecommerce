@@ -61,7 +61,11 @@ export default function AdminProducts() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const data = await apiService.getProducts();
+      const response = await apiService.getProducts();
+      // Extract products array from response
+      const data = Array.isArray(response)
+        ? response
+        : response?.products || [];
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -172,7 +176,7 @@ export default function AdminProducts() {
     });
   };
 
-  const filteredProducts = products.filter(
+  const filteredProducts = (products || []).filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.sku.toLowerCase().includes(searchTerm.toLowerCase())
@@ -190,9 +194,18 @@ export default function AdminProducts() {
   };
 
   return (
-    <AdminLayout title="Products Management">
+    <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Products Management
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Manage your product catalog
+          </p>
+        </div>
+
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <div className="relative">

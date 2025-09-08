@@ -46,7 +46,7 @@ const Footer = () => {
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <Package className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">EComShop</span>
+                <span className="text-xl font-bold">Vuaxemohinh</span>
               </div>
               <p className="text-gray-400 mb-4">
                 Cửa hàng trực tuyến hàng đầu Việt Nam với hàng nghìn sản phẩm
@@ -54,25 +54,33 @@ const Footer = () => {
               </p>
               <div className="flex space-x-4">
                 <a
-                  href="#"
+                  href="https://www.facebook.com/share/1C1dp31mte/?mibextid=wwXIfr"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   <Facebook className="h-5 w-5" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.tiktok.com/@taphoanhadev"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   <Twitter className="h-5 w-5" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.tiktok.com/@taphoanhadev"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   <Instagram className="h-5 w-5" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.tiktok.com/@taphoanhadev"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   <Youtube className="h-5 w-5" />
@@ -190,7 +198,7 @@ const Footer = () => {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-400">info@ecomshop.vn</span>
+                  <span className="text-gray-400">info@vuaxemohinh.vn</span>
                 </div>
               </div>
 
@@ -213,7 +221,7 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2025 EComShop. Tất cả quyền được bảo lưu.
+              © 2025 Vuaxemohinh. Tất cả quyền được bảo lưu.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link

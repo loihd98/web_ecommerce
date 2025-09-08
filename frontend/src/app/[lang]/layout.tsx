@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import ReduxProvider from "@/components/providers/ReduxProvider";
 import { Providers } from "@/components/providers/Providers";
@@ -16,15 +15,6 @@ export async function generateStaticParams() {
     lang: locale,
   }));
 }
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export async function generateMetadata({
   params,
@@ -32,22 +22,22 @@ export async function generateMetadata({
   params: { lang: string };
 }): Promise<Metadata> {
   const titles = {
-    en: "E-Commerce Store",
-    vi: "Cửa hàng thương mại điện tử",
-    es: "Tienda de comercio electrónico",
-    fr: "Boutique de commerce électronique",
-    de: "E-Commerce-Shop",
-    ja: "ECショップ",
-    ko: "전자상거래 상점",
-    zh: "电商商店",
+    en: "Vuaxemohinh",
+    vi: "Vua xe mô hình",
+    es: "Rey modelo de auto",
+    fr: "Roi du modèle de voiture",
+    de: "Auto-Modell-König",
+    ja: "車のモデル王",
+    ko: "자동차 모델 왕",
+    zh: "汽车模型王",
   };
 
   const descriptions = {
-    en: "Leading e-commerce platform in Vietnam",
-    vi: "Cửa hàng thương mại điện tử hàng đầu Việt Nam",
-    es: "Plataforma de comercio electrónico líder en Vietnam",
-    fr: "Plateforme de commerce électronique leader au Vietnam",
-    de: "Führende E-Commerce-Plattform in Vietnam",
+    en: "Leading model car platform in Vietnam",
+    vi: "Vua xe mô hình hàng đầu Việt Nam",
+    es: "Plataforma líder de modelos de autos en Vietnam",
+    fr: "Plateforme leader de modèles de voitures au Vietnam",
+    de: "Führende Auto-Modell-Plattform in Vietnam",
     ja: "ベトナムの主要なECプラットフォーム",
     ko: "베트남 최고의 전자상거래 플랫폼",
     zh: "越南领先的电商平台",
@@ -72,9 +62,7 @@ export default async function LangLayout({
   const { lang } = await params;
   return (
     <html lang={lang}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased font-sans" suppressHydrationWarning={true}>
         <I18nProvider initialLocale={lang}>
           <Providers>
             <ReduxProvider>{children}</ReduxProvider>

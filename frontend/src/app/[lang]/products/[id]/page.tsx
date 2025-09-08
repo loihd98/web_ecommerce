@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Layout from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import ProductCard from "@/components/products/ProductCard";
@@ -19,37 +18,38 @@ import {
   RefreshCw,
   Plus,
   Minus,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { apiService } from "@/services/api";
 
 interface Category {
-  id: number;
+  _id: string;
   name: string;
   description: string;
-  image: string;
+  slug: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 interface Product {
-  id: number;
+  _id: string;
   name: string;
   description: string;
   price: number;
-  discountPrice?: number;
+  salePrice?: number;
   stock: number;
   images: string[];
-  categoryId: number;
-  category: Category;
+  categoryId: Category;
   isActive: boolean;
   isFeatured: boolean;
   tags: string[];
-  sku: string;
-  weight: number;
-  attributes: Record<string, string | number>;
+  sku?: string;
+  weight?: number;
+  viewCount: number;
+  soldCount: number;
+  rating: number;
+  reviewCount: number;
+  attributes?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -66,7 +66,7 @@ interface Review {
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const productId = Number(params.id);
+  const productId = params.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -88,10 +88,11 @@ export default function ProductDetailPage() {
         ]);
 
         setProduct(productData);
-        // Filter out current product from related products
+        // Handle paginated response and filter out current product from related products
+        const relatedProductsList = relatedProductsData?.products || [];
         setRelatedProducts(
-          relatedProductsData
-            .filter((p: Product) => p.id !== productId)
+          relatedProductsList
+            .filter((p: Product) => p._id !== productId)
             .slice(0, 4)
         );
 
@@ -118,10 +119,8 @@ export default function ProductDetailPage() {
     }).format(price);
   };
 
-  const discountPercentage = product?.discountPrice
-    ? Math.round(
-        ((product.price - product.discountPrice) / product.price) * 100
-      )
+  const discountPercentage = product?.salePrice
+    ? Math.round(((product.price - product.salePrice) / product.price) * 100)
     : 0;
 
   const averageRating =
@@ -139,7 +138,7 @@ export default function ProductDetailPage() {
   const handleBuyNow = () => {
     if (product) {
       // Navigate to checkout
-      router.push(`/checkout?productId=${product.id}&quantity=${quantity}`);
+      router.push(`/checkout?productId=${product._id}&quantity=${quantity}`);
     }
   };
 
@@ -206,7 +205,9 @@ export default function ProductDetailPage() {
                 }
                 className="text-gray-500 hover:text-gray-700"
               >
-                {product.category.name}
+                {typeof product.categoryId === "object"
+                  ? product.categoryId.name
+                  : ""}
               </button>
               <span className="text-gray-400">/</span>
               <span className="text-gray-900 font-medium">{product.name}</span>
@@ -225,7 +226,7 @@ export default function ProductDetailPage() {
                   fill
                   className="object-cover"
                 />
-                {product.discountPrice && (
+                {product.salePrice && (
                   <Badge
                     variant="error"
                     className="absolute top-4 left-4 text-sm font-bold"
@@ -287,10 +288,10 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div className="flex items-center space-x-4 mb-4">
-                  {product.discountPrice ? (
+                  {product.salePrice ? (
                     <>
                       <span className="text-3xl font-bold text-red-600">
-                        {formatPrice(product.discountPrice)}
+                        {formatPrice(product.salePrice)}
                       </span>
                       <span className="text-xl text-gray-500 line-through">
                         {formatPrice(product.price)}
@@ -321,15 +322,16 @@ export default function ProductDetailPage() {
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Thông số kỹ thuật</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {Object.entries(product.attributes).map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="flex justify-between py-2 border-b border-gray-200"
-                    >
-                      <span className="text-gray-600 capitalize">{key}:</span>
-                      <span className="font-medium">{value}</span>
-                    </div>
-                  ))}
+                  {product.attributes &&
+                    Object.entries(product.attributes).map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="flex justify-between py-2 border-b border-gray-200"
+                      >
+                        <span className="text-gray-600 capitalize">{key}:</span>
+                        <span className="font-medium">{String(value)}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
 
@@ -455,19 +457,22 @@ export default function ProductDetailPage() {
                         Thông số chung
                       </h3>
                       <div className="space-y-3">
-                        {Object.entries(product.attributes).map(
-                          ([key, value]) => (
-                            <div
-                              key={key}
-                              className="flex justify-between py-2 border-b border-gray-200"
-                            >
-                              <span className="text-gray-600 capitalize">
-                                {key}:
-                              </span>
-                              <span className="font-medium">{value}</span>
-                            </div>
-                          )
-                        )}
+                        {product.attributes &&
+                          Object.entries(product.attributes).map(
+                            ([key, value]) => (
+                              <div
+                                key={key}
+                                className="flex justify-between py-2 border-b border-gray-200"
+                              >
+                                <span className="text-gray-600 capitalize">
+                                  {key}:
+                                </span>
+                                <span className="font-medium">
+                                  {String(value)}
+                                </span>
+                              </div>
+                            )
+                          )}
                         <div className="flex justify-between py-2 border-b border-gray-200">
                           <span className="text-gray-600">Trọng lượng:</span>
                           <span className="font-medium">
@@ -537,7 +542,10 @@ export default function ProductDetailPage() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
-                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                <ProductCard
+                  key={relatedProduct._id}
+                  product={relatedProduct}
+                />
               ))}
             </div>
           </div>

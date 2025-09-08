@@ -47,7 +47,7 @@ const Header = () => {
             href={createLocalizedPath("/")}
             className="flex items-center space-x-3"
           >
-            <Logo />
+            <Logo asLink={false} />
           </Link>
 
           {/* Search bar */}

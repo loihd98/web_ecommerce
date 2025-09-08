@@ -578,7 +578,7 @@ export function I18nProvider({
 
   const t = (key: string): string => {
     return (
-      translations[key]?.[initialLocale] || translations[key]?.["en"] || key
+      translations[key]?.[initialLocale] || translations[key]?.["vi"] || key
     );
   };
 

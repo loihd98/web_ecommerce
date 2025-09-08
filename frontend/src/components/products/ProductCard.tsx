@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       try {
-        const favoriteStatus = await apiService.isFavorite(product.id);
+        const favoriteStatus = await apiService.isFavorite(product._id);
         setIsFavorite(favoriteStatus);
       } catch (error) {
         console.error("Error checking favorite status:", error);
@@ -34,10 +34,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
     };
 
     checkFavoriteStatus();
-  }, [product.id]);
+  }, [product._id]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     dispatch(addToCart({ product, quantity: 1 }));
   };
 
@@ -56,12 +57,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     try {
       if (isFavorite) {
-        const success = await apiService.removeFromFavorites(product.id);
+        const success = await apiService.removeFromFavorites(product._id);
         if (success) {
           setIsFavorite(false);
         }
       } else {
-        const success = await apiService.addToFavorites(product.id);
+        const success = await apiService.addToFavorites(product._id);
         if (success) {
           setIsFavorite(true);
         }
@@ -80,16 +81,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }).format(price);
   };
 
-  const discountPercentage = product.discountPrice
-    ? Math.round(
-        ((product.price - product.discountPrice) / product.price) * 100
-      )
+  const discountPercentage = product.salePrice
+    ? Math.round(((product.price - product.salePrice) / product.price) * 100)
     : 0;
 
+  const getCategoryName = () => {
+    if (typeof product.categoryId === "object" && product.categoryId !== null) {
+      return product.categoryId.name;
+    }
+    return "";
+  };
+
+  const getCategoryId = () => {
+    if (typeof product.categoryId === "object" && product.categoryId !== null) {
+      return product.categoryId._id;
+    }
+    return product.categoryId;
+  };
+
   return (
-    <div className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-2xl transition-all duration-300 overflow-hidden lego-card">
-      {/* Product Image */}
-      <Link href={`/products/${product.id}`}>
+    <Link href={`/products/${product._id}`} className="group block">
+      <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-2xl transition-all duration-300 overflow-hidden lego-card">
+        {/* Product Image */}
         <div className="relative aspect-square overflow-hidden">
           <Image
             src={product.images?.[0] || "/placeholder-product.jpg"}
@@ -139,77 +152,74 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           )}
         </div>
-      </Link>
 
-      {/* Product Info */}
-      <div className="p-4">
-        {/* Category */}
-        <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
-          {product.category?.name}
-        </p>
+        {/* Product Info */}
+        <div className="p-4">
+          {/* Category */}
+          <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
+            {getCategoryName()}
+          </p>
 
-        {/* Product Name */}
-        <Link href={`/products/${product.id}`}>
+          {/* Product Name */}
           <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-red-600 transition-colors lego-text">
             {product.name}
           </h3>
-        </Link>
 
-        {/* Rating */}
-        <div className="flex items-center mb-3">
-          <div className="flex items-center">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className="h-4 w-4 fill-yellow-400 text-yellow-400"
-              />
-            ))}
+          {/* Rating */}
+          <div className="flex items-center mb-3">
+            <div className="flex items-center">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                />
+              ))}
+            </div>
+            <span className="text-sm text-gray-500 ml-2">(4.5)</span>
           </div>
-          <span className="text-sm text-gray-500 ml-2">(4.5)</span>
-        </div>
 
-        {/* Price */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            {product.discountPrice ? (
-              <div className="flex items-center space-x-2">
-                <span className="text-lg font-bold text-red-600">
-                  {formatPrice(product.discountPrice)}
-                </span>
-                <span className="text-sm text-gray-500 line-through">
+          {/* Price */}
+          {/* Price */}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2">
+              {product.salePrice ? (
+                <>
+                  <span className="text-lg font-bold text-red-600 dark:text-red-400">
+                    {formatPrice(product.salePrice)}
+                  </span>
+                  <span className="text-sm text-gray-400 line-through">
+                    {formatPrice(product.price)}
+                  </span>
+                </>
+              ) : (
+                <span className="text-lg font-bold text-gray-900 dark:text-white">
                   {formatPrice(product.price)}
                 </span>
-              </div>
-            ) : (
-              <span className="text-lg font-bold text-gray-900">
-                {formatPrice(product.price)}
+              )}
+            </div>
+            {discountPercentage > 0 && (
+              <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                -{discountPercentage}%
               </span>
             )}
           </div>
 
-          {/* Stock Status */}
-          {product.stock > 0 && product.stock <= 5 && (
-            <span className="text-xs text-orange-600 bg-orange-100 px-2 py-1 rounded-full">
-              Còn {product.stock}
-            </span>
-          )}
+          {/* Add to Cart Button */}
+          <button
+            onClick={handleAddToCart}
+            disabled={product.stock === 0}
+            className={`w-full lego-btn ${
+              product.stock === 0
+                ? "opacity-50 cursor-not-allowed"
+                : "lego-btn-blue"
+            }`}
+          >
+            <ShoppingCart className="h-4 w-4 mr-2 inline" />
+            {product.stock === 0 ? "Hết hàng" : "Thêm vào giỏ"}
+          </button>
         </div>
-
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          disabled={product.stock === 0}
-          className={`w-full lego-btn ${
-            product.stock === 0
-              ? "opacity-50 cursor-not-allowed"
-              : "lego-btn-blue"
-          }`}
-        >
-          <ShoppingCart className="h-4 w-4 mr-2 inline" />
-          {product.stock === 0 ? "Hết hàng" : "Thêm vào giỏ"}
-        </button>
       </div>
-    </div>
+    </Link>
   );
 };
 

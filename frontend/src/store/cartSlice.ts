@@ -25,24 +25,24 @@ const cartSlice = createSlice({
     ) => {
       const { product, quantity } = action.payload;
       const existingItem = state.items.find(
-        (item) => item.productId === product.id
+        (item) => item.productId === product._id
       );
 
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
         state.items.push({
-          id: Date.now(), // Temporary ID
-          productId: product.id,
+          _id: Date.now().toString(), // Temporary ID as string
+          productId: product._id,
           product,
           quantity,
-          price: product.discountPrice || product.price,
+          price: product.salePrice || product.price,
         });
       }
 
       cartSlice.caseReducers.calculateTotals(state);
     },
-    removeFromCart: (state, action: PayloadAction<number>) => {
+    removeFromCart: (state, action: PayloadAction<string>) => {
       state.items = state.items.filter(
         (item) => item.productId !== action.payload
       );
@@ -50,7 +50,7 @@ const cartSlice = createSlice({
     },
     updateQuantity: (
       state,
-      action: PayloadAction<{ productId: number; quantity: number }>
+      action: PayloadAction<{ productId: string; quantity: number }>
     ) => {
       const { productId, quantity } = action.payload;
       const item = state.items.find((item) => item.productId === productId);

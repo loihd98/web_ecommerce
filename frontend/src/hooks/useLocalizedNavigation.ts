@@ -12,7 +12,7 @@ export function useLocalizedNavigation() {
     // Assuming the first segment after '/' is the locale
     const locale = segments[1];
     const supportedLocales = ["en", "vi", "es", "fr", "de", "ja", "ko", "zh"];
-    return supportedLocales.includes(locale) ? locale : "en";
+    return supportedLocales.includes(locale) ? locale : "vi";
   };
 
   // Create localized path

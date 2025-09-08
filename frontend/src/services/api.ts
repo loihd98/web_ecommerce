@@ -112,7 +112,7 @@ class ApiService {
     return this.handleResponse(response);
   }
 
-  async getProduct(id: number) {
+  async getProduct(id: string) {
     const response = await fetch(`${API_BASE_URL}/products/${id}`, {
       headers: this.getAuthHeaders(),
     });
@@ -290,7 +290,7 @@ class ApiService {
       const favoriteIds = JSON.parse(favorites);
       // Get product details for each favorite
       const favoriteProducts = await Promise.all(
-        favoriteIds.map(async (id: number) => {
+        favoriteIds.map(async (id: string) => {
           try {
             return await this.getProduct(id);
           } catch (error) {
@@ -307,7 +307,7 @@ class ApiService {
     }
   }
 
-  async addToFavorites(productId: number) {
+  async addToFavorites(productId: string) {
     try {
       const favorites = localStorage.getItem("favorites");
       const favoriteIds = favorites ? JSON.parse(favorites) : [];
@@ -324,14 +324,14 @@ class ApiService {
     }
   }
 
-  async removeFromFavorites(productId: number) {
+  async removeFromFavorites(productId: string) {
     try {
       const favorites = localStorage.getItem("favorites");
       if (!favorites) return true;
 
       const favoriteIds = JSON.parse(favorites);
       const updatedFavorites = favoriteIds.filter(
-        (id: number) => id !== productId
+        (id: string) => id !== productId
       );
       localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
 
@@ -342,7 +342,7 @@ class ApiService {
     }
   }
 
-  async isFavorite(productId: number) {
+  async isFavorite(productId: string) {
     try {
       const favorites = localStorage.getItem("favorites");
       if (!favorites) return false;

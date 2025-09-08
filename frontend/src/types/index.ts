@@ -1,71 +1,107 @@
 export interface User {
-  id: number;
+  _id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   phone?: string;
   address?: string;
-  role: "admin" | "customer";
+  role: "admin" | "user";
   isActive: boolean;
-  image?: string;
+  avatar?: string;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+  description?: string;
+  slug: string;
+  image?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Product {
-  id: number;
+  _id: string;
   name: string;
   description: string;
   price: number;
-  discountPrice?: number;
+  salePrice?: number;
   stock: number;
   images: string[];
-  categoryId: number;
-  category: Category;
+  categoryId: Category | string;
   isActive: boolean;
   isFeatured: boolean;
   tags: string[];
   sku?: string;
   weight?: number;
   attributes?: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Category {
-  id: number;
-  name: string;
-  description?: string;
-  image?: string;
-  isActive: boolean;
+  viewCount: number;
+  soldCount: number;
+  rating: number;
+  reviewCount: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CartItem {
-  id: number;
-  productId: number;
+  _id: string;
+  productId: string;
   product: Product;
   quantity: number;
   price: number;
 }
 
 export interface Order {
-  id: number;
-  userId: number;
+  _id: string;
+  userId: string;
   items: OrderItem[];
   totalAmount: number;
-  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
-  shippingAddress: string;
-  paymentMethod: string;
-  paymentStatus: "pending" | "paid" | "failed";
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  shippingAddress: ShippingAddress;
+  notes?: string;
+  trackingNumber?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface OrderItem {
-  id: number;
-  productId: number;
-  product: Product;
+  productId: string;
+  productName: string;
+  productImage?: string;
   quantity: number;
   price: number;
+}
+
+export interface ShippingAddress {
+  fullName: string;
+  phone: string;
+  address: string;
+  city: string;
+  district: string;
+  ward: string;
+  postalCode?: string;
+}
+
+export enum OrderStatus {
+  PENDING = "pending",
+  CONFIRMED = "confirmed",
+  SHIPPED = "shipped",
+  DELIVERED = "delivered",
+  CANCELLED = "cancelled",
+}
+
+export enum PaymentMethod {
+  COD = "cod",
+  BANK_TRANSFER = "bank_transfer",
+  CREDIT_CARD = "credit_card",
+}
+
+export enum PaymentStatus {
+  PENDING = "pending",
+  PAID = "paid",
+  FAILED = "failed",
 }

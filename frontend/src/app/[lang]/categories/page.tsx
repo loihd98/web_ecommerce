@@ -10,9 +10,10 @@ import { Search, Grid, List, ChevronRight } from "lucide-react";
 import { apiService } from "@/services/api";
 
 interface Category {
-  id: number;
+  _id: string;
   name: string;
-  description: string;
+  description?: string;
+  slug?: string;
   image?: string;
   isActive: boolean;
   createdAt: string;
@@ -20,21 +21,25 @@ interface Category {
 }
 
 interface Product {
-  id: number;
+  _id: string;
   name: string;
   description: string;
   price: number;
-  discountPrice?: number;
+  salePrice?: number;
   stock: number;
   images: string[];
-  categoryId: number;
-  category?: Category;
+  categoryId: {
+    _id: string;
+    name: string;
+  };
   isActive: boolean;
   isFeatured: boolean;
-  sku: string;
   tags: string[];
   weight: number;
-  attributes: Record<string, unknown>;
+  viewCount: number;
+  soldCount: number;
+  rating: number;
+  reviewCount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,7 +49,7 @@ export default function CategoriesPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Fetch data from API
@@ -58,9 +63,17 @@ export default function CategoriesPage() {
           apiService.getCategories(),
           apiService.getProducts(),
         ]);
+        console.log("Fetched Categories:", categoriesData);
+        console.log("Fetched Products:", productsData);
 
-        setCategories(categoriesData);
-        setProducts(productsData);
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+        // Handle paginated products response
+        const products = productsData?.products
+          ? productsData.products
+          : Array.isArray(productsData)
+          ? productsData
+          : [];
+        setProducts(products);
       } catch (error) {
         console.error("Error fetching data:", error);
         setCategories([]);
@@ -74,42 +87,56 @@ export default function CategoriesPage() {
   }, []);
 
   // Filter categories and products based on search
-  const filteredCategories = categories.filter(
+  const filteredCategories = (categories || []).filter(
     (category) =>
       category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.description.toLowerCase().includes(searchTerm.toLowerCase())
+      (category.description &&
+        category.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const filteredProducts = products.filter((product) => {
+  console.log("Filtered Categories:", filteredCategories);
+
+  const filteredProducts = (products || []).filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === null || product.categoryId === selectedCategory;
+      selectedCategory === null || product.categoryId._id === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
 
   const getCategoryIcon = (categoryName: string) => {
     switch (categoryName) {
-      case "Điện thoại":
-        return "📱";
-      case "Laptop":
-        return "💻";
-      case "Thời trang":
-        return "👕";
-      case "Gia dụng":
-        return "🏠";
-      case "Sách":
-        return "📚";
+      case "Xe Ô Tô Mô Hình":
+        return "🚗";
+      case "Xe Mô Tô Mô Hình":
+        return "🏍️";
+      case "Xe Tải & Xe Chuyên Dụng":
+        return "�";
+      case "Máy Bay Mô Hình":
+        return "✈️";
+      case "Tàu Thuyền Mô Hình":
+        return "�";
+      case "Robot & Gundam":
+        return "🤖";
+      case "Nhân Vật Anime":
+        return "�";
       default:
         return "📦";
     }
   };
 
-  const getProductCountByCategory = (categoryId: number) => {
-    return products.filter((product) => product.categoryId === categoryId)
-      .length;
+  const getProductCountByCategory = (categoryId: string) => {
+    console.log(
+      "Calculating product count for categoryId:",
+      categoryId,
+      products
+    );
+
+    return (products || []).filter(
+      (product) => product.categoryId._id === categoryId
+    ).length;
   };
 
   if (loading) {
@@ -210,15 +237,15 @@ export default function CategoriesPage() {
           >
             {filteredCategories.map((category) => (
               <div
-                key={category.id}
+                key={category._id}
                 className={`cursor-pointer transition-all duration-300 hover:shadow-lg border-2 rounded-lg ${
-                  selectedCategory === category.id
+                  selectedCategory === category._id
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-200 hover:border-blue-300"
                 }`}
                 onClick={() =>
                   setSelectedCategory(
-                    selectedCategory === category.id ? null : category.id
+                    selectedCategory === category._id ? null : category._id
                   )
                 }
               >
@@ -236,7 +263,7 @@ export default function CategoriesPage() {
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-blue-600 font-medium">
-                          {getProductCountByCategory(category.id)} sản phẩm
+                          {getProductCountByCategory(category._id)} sản phẩm
                         </span>
                         <ChevronRight className="w-5 h-5 text-gray-400" />
                       </div>
@@ -254,7 +281,7 @@ export default function CategoriesPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 Sản phẩm trong danh mục:{" "}
-                {categories.find((c) => c.id === selectedCategory)?.name}
+                {categories.find((c) => c._id === selectedCategory)?.name}
               </h2>
               <Button
                 variant="outline"
@@ -272,27 +299,43 @@ export default function CategoriesPage() {
                     : "grid-cols-1 md:grid-cols-2"
                 }`}
               >
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={{
-                      ...product,
-                      category: product.category ||
-                        categories.find((c) => c.id === product.categoryId) || {
-                          id: product.categoryId,
-                          name: "Danh mục",
+                {filteredProducts.map((product) => {
+                  // Transform categoryId to full Category object for ProductCard
+                  const fullCategory = categories.find(
+                    (c) => c._id === product.categoryId._id
+                  );
+                  const transformedProduct = {
+                    ...product,
+                    categoryId: fullCategory
+                      ? {
+                          ...fullCategory,
+                          slug:
+                            fullCategory.slug ||
+                            fullCategory.name
+                              .toLowerCase()
+                              .replace(/\s+/g, "-"),
+                        }
+                      : {
+                          _id: product.categoryId._id,
+                          name: product.categoryId.name,
+                          slug: product.categoryId.name
+                            .toLowerCase()
+                            .replace(/\s+/g, "-"),
                           description: "",
                           isActive: true,
-                          createdAt: "",
-                          updatedAt: "",
+                          createdAt: new Date().toISOString(),
+                          updatedAt: new Date().toISOString(),
                         },
-                      tags: product.tags || [],
-                      weight: product.weight || 0,
-                      attributes: product.attributes || {},
-                    }}
-                    viewMode={viewMode}
-                  />
-                ))}
+                  };
+
+                  return (
+                    <ProductCard
+                      key={product._id}
+                      product={transformedProduct}
+                      viewMode={viewMode}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-12">

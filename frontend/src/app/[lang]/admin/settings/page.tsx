@@ -61,10 +61,10 @@ interface Settings {
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>({
     general: {
-      siteName: "E-Commerce Store",
-      siteDescription: "Cửa hàng thương mại điện tử hàng đầu Việt Nam",
-      siteUrl: "https://yourstore.com",
-      contactEmail: "contact@yourstore.com",
+      siteName: "Vuaxemohinh",
+      siteDescription: "Vua xe mô hình hàng đầu Việt Nam",
+      siteUrl: "https://vuaxemohinh.vercel.app",
+      contactEmail: "contact@vuaxemohinh.com",
       phoneNumber: "+84 123 456 789",
       address: "CT6 Kien Hung, Ha Dong, Hanoi",
       currency: "VND",
@@ -75,8 +75,8 @@ export default function SettingsPage() {
       smtpPort: "587",
       smtpUser: "",
       smtpPassword: "",
-      fromEmail: "noreply@yourstore.com",
-      fromName: "E-Commerce Store",
+      fromEmail: "noreply@vuaxemohinh.com",
+      fromName: "Vuaxemohinh",
     },
     payment: {
       vnpayMerchantId: "",

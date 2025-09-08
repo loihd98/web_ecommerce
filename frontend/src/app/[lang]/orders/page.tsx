@@ -45,7 +45,11 @@ export default function OrdersPage() {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const ordersData = await apiService.getOrders();
+        const ordersResponse = await apiService.getOrders();
+        // Extract orders array from response
+        const ordersData = Array.isArray(ordersResponse)
+          ? ordersResponse
+          : ordersResponse?.orders || [];
         setOrders(ordersData);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -235,7 +239,7 @@ export default function OrdersPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge
-                        variant={getStatusVariant(order.status) as any}
+                        variant={getStatusVariant(order.status)}
                         className="flex items-center space-x-1"
                       >
                         {getStatusIcon(order.status)}

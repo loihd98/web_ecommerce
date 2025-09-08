@@ -7,14 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS for frontend communication
-  const allowedOrigins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
-    process.env.FRONTEND_URL,
-    process.env.VERCEL_FRONTEND_URL,
-    "https://vuaxemohinh.vercel.app",
-  ].filter(Boolean); // Remove undefined values
+  const allowedOrigins = ["*"];
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -51,9 +44,9 @@ async function bootstrap() {
 
   // Swagger API Documentation
   const config = new DocumentBuilder()
-    .setTitle("E-commerce API")
+    .setTitle("Vuaxemohinh API")
     .setDescription(
-      "Complete e-commerce backend API with authentication, products, orders, and payments"
+      "Complete Vuaxemohinh backend API with authentication, products, orders, and payments"
     )
     .setVersion("1.0")
     .addBearerAuth(

@@ -15,7 +15,7 @@ import {
   ApiBody,
 } from "@nestjs/swagger";
 import { ProductsService } from "./products.service";
-import { Product } from "./product.entity";
+import { Product } from "./product.schema";
 
 @ApiTags("Products")
 @Controller("products")
@@ -53,16 +53,16 @@ export class ProductsController {
   @ApiParam({ name: "id", description: "Product ID" })
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.productsService.findOne(+id);
+    return this.productsService.findOne(id);
   }
 
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateProductDto: Partial<Product>) {
-    return this.productsService.update(+id, updateProductDto);
+    return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(":id")
   remove(@Param("id") id: string) {
-    return this.productsService.remove(+id);
+    return this.productsService.remove(id);
   }
 }

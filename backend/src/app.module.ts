@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { MongooseModule } from "@nestjs/mongoose";
+import { AppController } from "./app.controller";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { ProductsModule } from "./products/products.module";
@@ -15,23 +16,9 @@ import { ChatbotModule } from "./chatbot/chatbot.module";
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: process.env.POSTGRES_URL
-        ? "postgres"
-        : (process.env.DB_TYPE as any) || "sqlite",
-      url: process.env.POSTGRES_URL, // Vercel Postgres connection string
-      database: process.env.DB_DATABASE || "ecommerce.db",
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT) || undefined,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      autoLoadEntities: true,
-      synchronize: process.env.NODE_ENV !== "production",
-      ssl:
-        process.env.NODE_ENV === "production"
-          ? { rejectUnauthorized: false }
-          : false,
-    }),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI || "mongodb://localhost:27017/vuaxemohinh"
+    ),
     AuthModule,
     UsersModule,
     ProductsModule,
@@ -41,5 +28,6 @@ import { ChatbotModule } from "./chatbot/chatbot.module";
     PaymentsModule,
     ChatbotModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

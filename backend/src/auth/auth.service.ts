@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
+import { User } from "../users/user.schema";
 import { SocialLoginDto } from "./dto/social-login.dto";
 import * as bcrypt from "bcrypt";
 
@@ -13,24 +14,29 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
+
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { password, ...result } = user;
+      const userObj = (user as any).toObject ? (user as any).toObject() : user;
+      const { password, ...result } = userObj;
       return result;
     }
     return null;
   }
-
   async login(user: any) {
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const userId = user._id || user.id;
+    const payload = {
+      email: user.email,
+      sub: userId.toString(),
+      role: user.role,
+    };
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
-        id: user.id,
+        id: userId.toString(),
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        name: user.name,
         role: user.role,
-        image: user.image,
       },
     };
   }
@@ -51,6 +57,7 @@ export class AuthService {
       // Create new user with social login
       const userData = {
         email,
+        name: name || email.split("@")[0],
         firstName: name ? name.split(" ")[0] : "",
         lastName: name ? name.split(" ").slice(1).join(" ") : "",
         password: await bcrypt.hash(Math.random().toString(36), 10), // Random password
@@ -64,7 +71,7 @@ export class AuthService {
     } else {
       // Update existing user with social info if not already set
       if (!user.socialProvider) {
-        await this.usersService.update(user.id, {
+        await this.usersService.update((user as any)._id.toString(), {
           socialProvider: provider,
           socialProviderId: providerId,
           image: image || user.image,
@@ -76,11 +83,15 @@ export class AuthService {
     }
 
     // Generate JWT token
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const payload = {
+      email: user.email,
+      sub: (user as any)._id.toString(),
+      role: user.role,
+    };
     return {
       token: this.jwtService.sign(payload),
       user: {
-        id: user.id,
+        id: (user as any)._id.toString(),
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -90,11 +101,15 @@ export class AuthService {
     };
   }
 
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<User | null> {
     return this.usersService.findByEmail(email);
   }
 
-  async getProfile(userId: number) {
+  async findUserById(userId: string): Promise<User | null> {
+    return this.usersService.findOne(userId);
+  }
+
+  async getProfile(userId: string): Promise<User | null> {
     return this.usersService.findOne(userId);
   }
 }

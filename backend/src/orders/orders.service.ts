@@ -1,135 +1,183 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import {
-  Order,
-  OrderStatus,
-  PaymentMethod,
-  PaymentStatus,
-} from "./order.entity";
-import { OrderItem } from "./order-item.entity";
-
-interface CreateOrderDto {
-  userId: number;
-  items: {
-    productId: number;
-    productName: string;
-    price: number;
-    discountPrice?: number;
-    quantity: number;
-    productAttributes?: any;
-  }[];
-  shippingInfo: {
-    fullName: string;
-    phone: string;
-    email: string;
-    address: string;
-    city: string;
-    district: string;
-    ward: string;
-    notes?: string;
-  };
-  paymentMethod: PaymentMethod;
-  subtotal: number;
-  shippingFee: number;
-  discount: number;
-  total: number;
-}
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { Order, OrderDocument } from "./order.schema";
 
 @Injectable()
 export class OrdersService {
   constructor(
-    @InjectRepository(Order)
-    private ordersRepository: Repository<Order>,
-    @InjectRepository(OrderItem)
-    private orderItemsRepository: Repository<OrderItem>
+    @InjectModel(Order.name)
+    private orderModel: Model<OrderDocument>
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const orderNumber = this.generateOrderNumber();
-
-    const order = this.ordersRepository.create({
-      userId: createOrderDto.userId,
-      orderNumber,
-      subtotal: createOrderDto.subtotal,
-      shippingFee: createOrderDto.shippingFee,
-      discount: createOrderDto.discount,
-      total: createOrderDto.total,
-      status: OrderStatus.PENDING,
-      paymentMethod: createOrderDto.paymentMethod,
-      paymentStatus: PaymentStatus.PENDING,
-      shippingName: createOrderDto.shippingInfo.fullName,
-      shippingPhone: createOrderDto.shippingInfo.phone,
-      shippingEmail: createOrderDto.shippingInfo.email,
-      shippingAddress: createOrderDto.shippingInfo.address,
-      shippingCity: createOrderDto.shippingInfo.city,
-      shippingDistrict: createOrderDto.shippingInfo.district,
-      shippingWard: createOrderDto.shippingInfo.ward,
-      notes: createOrderDto.shippingInfo.notes,
-    });
-
-    const savedOrder = await this.ordersRepository.save(order);
-
-    // Create order items
-    const orderItems = createOrderDto.items.map((item) => {
-      return this.orderItemsRepository.create({
-        orderId: savedOrder.id,
-        productId: item.productId,
-        productName: item.productName,
-        price: item.price,
-        discountPrice: item.discountPrice,
-        quantity: item.quantity,
-        productAttributes: item.productAttributes
-          ? JSON.stringify(item.productAttributes)
-          : null,
-      });
-    });
-
-    await this.orderItemsRepository.save(orderItems);
-
-    return this.findOne(savedOrder.id);
+  async create(orderData: Partial<Order>): Promise<Order> {
+    const order = new this.orderModel(orderData);
+    return order.save();
   }
 
-  async findAll(): Promise<Order[]> {
-    return this.ordersRepository.find({
-      relations: ["user", "items", "items.product"],
-      order: { createdAt: "DESC" },
-    });
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    status?: string,
+    userId?: string
+  ): Promise<{ orders: Order[]; total: number; pages: number }> {
+    const query: any = {};
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (userId) {
+      query.userId = userId;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      this.orderModel
+        .find(query)
+        .populate("userId", "name email")
+        .populate("items.productId", "name price images")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
+      this.orderModel.countDocuments(query),
+    ]);
+
+    return {
+      orders,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
 
-  async findByUser(userId: number): Promise<Order[]> {
-    return this.ordersRepository.find({
-      where: { userId },
-      relations: ["items", "items.product"],
-      order: { createdAt: "DESC" },
-    });
+  async findOne(id: string): Promise<Order> {
+    const order = await this.orderModel
+      .findById(id)
+      .populate("userId", "name email phone")
+      .populate("items.productId", "name price images")
+      .exec();
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID "${id}" not found`);
+    }
+
+    return order;
   }
 
-  async findOne(id: number): Promise<Order> {
-    return this.ordersRepository.findOne({
-      where: { id },
-      relations: ["user", "items", "items.product"],
-    });
+  async findByUser(
+    userId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ orders: Order[]; total: number; pages: number }> {
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      this.orderModel
+        .find({ userId })
+        .populate("items.productId", "name price images")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
+      this.orderModel.countDocuments({ userId }),
+    ]);
+
+    return {
+      orders,
+      total,
+      pages: Math.ceil(total / limit),
+    };
   }
 
-  async updateStatus(id: number, status: OrderStatus): Promise<Order> {
-    await this.ordersRepository.update(id, { status });
-    return this.findOne(id);
+  async updateStatus(id: string, status: string): Promise<Order> {
+    const updateData: any = { status };
+
+    if (status === "shipped") {
+      updateData.shippedAt = new Date();
+    } else if (status === "delivered") {
+      updateData.deliveredAt = new Date();
+    } else if (status === "cancelled") {
+      updateData.cancelledAt = new Date();
+    }
+
+    const order = await this.orderModel
+      .findByIdAndUpdate(id, updateData, { new: true })
+      .populate("userId", "name email")
+      .populate("items.productId", "name price images")
+      .exec();
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID "${id}" not found`);
+    }
+
+    return order;
   }
 
-  async updatePaymentStatus(
-    id: number,
-    paymentStatus: PaymentStatus
-  ): Promise<Order> {
-    await this.ordersRepository.update(id, { paymentStatus });
-    return this.findOne(id);
+  async updatePaymentStatus(id: string, paymentStatus: string): Promise<Order> {
+    const order = await this.orderModel
+      .findByIdAndUpdate(id, { paymentStatus }, { new: true })
+      .populate("userId", "name email")
+      .populate("items.productId", "name price images")
+      .exec();
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID "${id}" not found`);
+    }
+
+    return order;
   }
 
-  private generateOrderNumber(): string {
-    const timestamp = Date.now().toString();
-    const random = Math.floor(Math.random() * 1000)
-      .toString()
-      .padStart(3, "0");
-    return `ORD${timestamp}${random}`;
+  async cancel(id: string, cancelReason?: string): Promise<Order> {
+    const order = await this.orderModel
+      .findByIdAndUpdate(
+        id,
+        {
+          status: "cancelled",
+          cancelledAt: new Date(),
+          cancelReason: cancelReason || "Cancelled by user",
+        },
+        { new: true }
+      )
+      .populate("userId", "name email")
+      .populate("items.productId", "name price images")
+      .exec();
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID "${id}" not found`);
+    }
+
+    return order;
+  }
+
+  async getOrderStats(): Promise<any> {
+    const [
+      totalOrders,
+      pendingOrders,
+      shippedOrders,
+      deliveredOrders,
+      cancelledOrders,
+      totalRevenue,
+    ] = await Promise.all([
+      this.orderModel.countDocuments(),
+      this.orderModel.countDocuments({ status: "pending" }),
+      this.orderModel.countDocuments({ status: "shipped" }),
+      this.orderModel.countDocuments({ status: "delivered" }),
+      this.orderModel.countDocuments({ status: "cancelled" }),
+      this.orderModel.aggregate([
+        { $match: { status: { $ne: "cancelled" } } },
+        { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+      ]),
+    ]);
+
+    return {
+      totalOrders,
+      pendingOrders,
+      shippedOrders,
+      deliveredOrders,
+      cancelledOrders,
+      totalRevenue: totalRevenue[0]?.total || 0,
+    };
   }
 }
